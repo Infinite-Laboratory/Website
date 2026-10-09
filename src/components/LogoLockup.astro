@@ -1,8 +1,9 @@
 ---
 import Goggles from './Goggles.astro';
 import { SITE_NAME } from '../config';
+import { withBase } from '../lib/url';
 ---
-<a class="brand" href="/" data-logo aria-label={`${SITE_NAME}, home`}>
+<a class="brand" href={withBase('/')} data-logo aria-label={`${SITE_NAME}, home`}>
   <Goggles />
   <span class="mono wordmark"><b>Infinite</b> Laboratory</span>
 </a>

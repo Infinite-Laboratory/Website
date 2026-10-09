@@ -1,11 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { withBase } from '../lib/url';
 ---
 <Layout title="Not found" noindex>
   <section class="stub wrap">
     <p class="mono eyebrow">Error 404</p>
     <h1>This page failed.</h1>
     <p class="sub">We logged it. Good.</p>
-    <p class="actions"><a class="btn p" href="/">Back to the lab</a> <a class="btn" href="/wiki">Read the wiki</a></p>
+    <p class="actions"><a class="btn p" href={withBase('/')}>Back to the lab</a> <a class="btn" href={withBase('/wiki')}>Read the wiki</a></p>
   </section>
 </Layout>

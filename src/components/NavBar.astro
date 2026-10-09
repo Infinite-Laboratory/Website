@@ -1,14 +1,15 @@
 ---
 import LogoLockup from './LogoLockup.astro';
 import { NAV_LINKS, AUTH_LINKS } from '../config';
+import { withBase } from '../lib/url';
 
 interface Props {
   /** Current route path, e.g. "/rules". */
   path: string;
 }
 const { path } = Astro.props;
-const norm = (p: string) => (p.length > 1 ? p.replace(/\/$/, '') : p);
-const isActive = (href: string) => norm(path) === href;
+// `path` is already the public route (no base, no .html).
+const isActive = (href: string) => path === href;
 ---
 <header class="site-nav">
   <LogoLockup />
@@ -24,12 +25,12 @@ const isActive = (href: string) => norm(path) === href;
   <div class="menu" id="site-menu">
     <nav class="tabs mono" aria-label="Main">
       {NAV_LINKS.map((l) => (
-        <a class="tab" href={l.href} aria-current={isActive(l.href) ? 'page' : undefined}>{l.label}</a>
+        <a class="tab" href={withBase(l.href)} aria-current={isActive(l.href) ? 'page' : undefined}>{l.label}</a>
       ))}
     </nav>
     <div class="auth mono">
       {AUTH_LINKS.map((l) => (
-        <a class:list={['btn', { p: l.primary }]} href={l.href} aria-current={isActive(l.href) ? 'page' : undefined}>{l.label}</a>
+        <a class:list={['btn', { p: l.primary }]} href={withBase(l.href)} aria-current={isActive(l.href) ? 'page' : undefined}>{l.label}</a>
       ))}
     </div>
   </div>

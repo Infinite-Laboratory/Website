@@ -1,6 +1,7 @@
 ---
 import { ANNOUNCEMENT } from '../config';
 import { activeAnnouncement } from '../lib/announcement';
+import { withBase } from '../lib/url';
 
 const a = activeAnnouncement(ANNOUNCEMENT);
 ---
@@ -8,7 +9,7 @@ const a = activeAnnouncement(ANNOUNCEMENT);
   <div class="ann" role="status" data-id={a.id} data-kind={a.kind ?? 'info'} data-until={a.until}>
     <p>
       {a.message}
-      {a.link && <a href={a.link.href}>{a.link.label} &gt;</a>}
+      {a.link && <a href={withBase(a.link.href)}>{a.link.label} &gt;</a>}
     </p>
     <button class="x" type="button" aria-label="Dismiss announcement">&times;</button>
   </div>

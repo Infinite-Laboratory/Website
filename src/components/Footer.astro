@@ -1,5 +1,6 @@
 ---
 import LogoLockup from './LogoLockup.astro';
+import { withBase } from '../lib/url';
 import { DISCORD_INVITE, SINGULARITYLIB_URL, SITE_NAME } from '../config';
 const year = new Date().getFullYear();
 ---
@@ -9,19 +10,19 @@ const year = new Date().getFullYear();
     <div class="col">
       <h2 class="mono">Community</h2>
       <a href={DISCORD_INVITE} target="_blank" rel="noopener">Discord</a>
-      <a href="/team">Our team</a>
-      <a href="/brand">Brand kit</a>
+      <a href={withBase('/team')}>Our team</a>
+      <a href={withBase('/brand')}>Brand kit</a>
     </div>
     <div class="col">
       <h2 class="mono">Project</h2>
-      <a href="/wiki">Wiki</a>
-      <a href="/rules">Rules</a>
+      <a href={withBase('/wiki')}>Wiki</a>
+      <a href={withBase('/rules')}>Rules</a>
       <a href={SINGULARITYLIB_URL} target="_blank" rel="noopener">SingularityLib</a>
     </div>
     <div class="col">
       <h2 class="mono">Legal</h2>
-      <a href="/privacy">Privacy</a>
-      <a href="/terms">Terms</a>
+      <a href={withBase('/privacy')}>Privacy</a>
+      <a href={withBase('/terms')}>Terms</a>
     </div>
   </div>
   <p class="legal mono">&copy; {year} {SITE_NAME}</p>
