@@ -4,7 +4,6 @@ export const STUBS: Record<string, { title: string }> = {
   store: { title: 'Store' },
   vote: { title: 'Vote' },
   leaderboards: { title: 'Leaderboards' },
-  wiki: { title: 'Wiki' },
   login: { title: 'Login' },
   register: { title: 'Register' },
   team: { title: 'Our team' },

@@ -34,4 +34,20 @@ const buildlog = defineCollection({
   }),
 });
 
-export const collections = { rules, buildlog };
+export const WIKI_SECTIONS = {
+  'getting-started': 'Getting started',
+  'jobs-economy': 'Jobs economy',
+  commands: 'Commands',
+  experiments: 'Experiments',
+} as const;
+
+const wiki = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/wiki' }),
+  schema: z.object({
+    ...base,
+    section: z.enum(['getting-started', 'jobs-economy', 'commands', 'experiments']),
+    summary: z.string(),
+  }),
+});
+
+export const collections = { rules, buildlog, wiki };

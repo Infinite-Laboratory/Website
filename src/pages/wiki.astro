@@ -1,0 +1,103 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import { WIKI_SECTIONS } from '../content.config';
+import { withBase } from '../lib/url';
+
+const all = (await getCollection('wiki')).filter((e) => e.data.language === 'en');
+const sections = (Object.keys(WIKI_SECTIONS) as (keyof typeof WIKI_SECTIONS)[]).map((key) => ({
+  key,
+  name: WIKI_SECTIONS[key],
+  articles: all.filter((e) => e.data.section === key).sort((a, b) => a.data.order - b.data.order),
+}));
+---
+<Layout title="Wiki" description="How Deepslate MC works: getting started, the jobs economy, commands and the experiments.">
+  <section class="rules-head wrap">
+    <p class="mono eyebrow">Wiki</p>
+    <h1>How it works</h1>
+    <p class="sub">Guides for fellows. Written down as we build, so some sections are still empty.</p>
+  </section>
+
+  <section class="wrap wiki-search" aria-label="Search the wiki" hidden>
+    <label class="mono" for="wiki-q">Search</label>
+    <input id="wiki-q" type="search" placeholder="Search articles" autocomplete="off" data-index={withBase('/wiki/search-index.json')} />
+    <ul id="wiki-results" aria-live="polite"></ul>
+  </section>
+
+  <section class="wrap wiki-sections">
+    {sections.map((s) => (
+      <div class="wiki-section" id={s.key}>
+        <h2 class="mono">{s.name}</h2>
+        {s.articles.length === 0
+          ? <p class="empty">Not written yet.</p>
+          : <ul>{s.articles.map((a) => <li><a href={withBase(`/wiki/${a.data.slug}`)}>{a.data.title}</a><span>{a.data.summary}</span></li>)}</ul>}
+      </div>
+    ))}
+  </section>
+</Layout>
+
+<script>
+  import { searchIndex, type WikiIndexEntry } from '../lib/wiki-search';
+  const box = document.querySelector<HTMLElement>('.wiki-search');
+  const input = document.getElementById('wiki-q') as HTMLInputElement | null;
+  const list = document.getElementById('wiki-results');
+  if (box && input && list) {
+    box.hidden = false; // search needs JavaScript; the section lists below work without it
+    let index: WikiIndexEntry[] | null = null;
+    const load = async () => (index ??= await (await fetch(input.dataset.index!)).json());
+    input.addEventListener('focus', () => void load().catch(() => {}), { once: true });
+    input.addEventListener('input', async () => {
+      const q = input.value.trim();
+      list.replaceChildren();
+      if (!q) return;
+      try {
+        const hits = searchIndex(await load(), q);
+        if (hits.length === 0) {
+          const li = document.createElement('li');
+          li.className = 'none';
+          li.textContent = 'No articles found.';
+          list.append(li);
+          return;
+        }
+        for (const h of hits) {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = h.url;
+          a.textContent = h.title;
+          const s = document.createElement('span');
+          s.textContent = `${h.section} · ${h.summary}`;
+          li.append(a, s);
+          list.append(li);
+        }
+      } catch {
+        const li = document.createElement('li');
+        li.className = 'none';
+        li.textContent = 'Search is unavailable right now.';
+        list.append(li);
+      }
+    });
+  }
+</script>
+
+<style is:global>
+  .wiki-search { padding-bottom: var(--space-6); }
+  .wiki-search[hidden] { display: none; }
+  .wiki-search label { display: block; font-size: 11px; color: var(--fg-label); margin-bottom: 8px; }
+  .wiki-search input { width: 100%; max-width: 520px; background: var(--surface-1); border: 1px solid var(--line); color: var(--fg); padding: 12px 14px; font: 400 15px var(--font-sans); border-radius: 0; }
+  .wiki-search input:focus-visible { border-color: var(--mint); }
+  #wiki-results { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 4px; max-width: 520px; }
+  #wiki-results li { display: flex; flex-direction: column; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  #wiki-results li span { font-size: 12px; color: var(--fg-dim); }
+  #wiki-results .none { color: var(--fg-dim); font-size: 14px; }
+  .wiki-sections { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--line); margin: 0 var(--space-7) var(--space-9); padding: 0; }
+  .wiki-section { padding: 22px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .wiki-section:nth-child(2n) { border-right: 0; }
+  .wiki-section:nth-last-child(-n+2) { border-bottom: 0; }
+  .wiki-section h2 { font-weight: 400; font-size: 12px; color: var(--fg-label); margin: 0 0 14px; }
+  .wiki-section ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .wiki-section li { display: flex; flex-direction: column; gap: 2px; }
+  .wiki-section li a { font-size: 17px; } .wiki-section li a:hover { color: var(--mint); }
+  .wiki-section li span { font-size: 13px; color: var(--fg-dim); }
+  .wiki-section .empty { margin: 0; font-size: 13px; color: var(--fg-meta); }
+  @media (max-width: 899px) { .wiki-sections { grid-template-columns: 1fr; margin-left: 20px; margin-right: 20px; } .wiki-section { border-right: 0 !important; border-bottom: 1px solid var(--line) !important; } .wiki-section:last-child { border-bottom: 0 !important; } }
+</style>
