@@ -1,0 +1,14 @@
+---
+import type { Kind } from '../lib/buildlog';
+import { kindClass } from '../lib/buildlog';
+interface Props { kind: Kind }
+const { kind } = Astro.props;
+---
+<span class:list={['tag', 'mono', kindClass(kind)]}>{kind}</span>
+
+<style is:global>
+  .tag { display: inline-block; font-size: 10px; line-height: 14px; padding: 2px 6px; border: 1px solid var(--line-strong); color: var(--fg-dim); }
+  .tag-mint { color: var(--mint); border-color: #9bfba244; }
+  .tag-blue { color: var(--blue); border-color: #7aa7fb44; }
+  .tag-danger { color: var(--danger); border-color: #8a3a3a; }
+</style>
