@@ -141,7 +141,7 @@ test.describe('threads refresh script', () => {
     expect(JSON.stringify(out)).not.toMatch(/owner|123|456|last_message/);
   });
 
-  const files = (initial: string) => { const f = { v: initial }; return { f, read: () => f.v, write: (_: string, d: string) => { f.v = d; } }; };
+  const files = (initial: string) => { const f = { v: initial }; return { f, read: () => f.v, write: ((_: unknown, d: unknown) => { f.v = String(d); }) as any }; };
   const ok = (body: unknown) => async () => new Response(JSON.stringify(body), { status: 200 });
   const router = (map: Record<string, unknown | number>) => async (url: string) => {
     const hit = Object.entries(map).find(([k]) => url.endsWith(k));
