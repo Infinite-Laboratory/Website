@@ -1,0 +1,13 @@
+---
+import { getCollection } from 'astro:content';
+import RulesView from '../../components/RulesView.astro';
+import { variantsBySlug } from '../../lib/content';
+
+// Thai pages exist only where a Thai variant has been written.
+export async function getStaticPaths() {
+  const v = variantsBySlug(await getCollection('rules')).get('rules');
+  return v?.th ? [{ params: { lang: 'th' }, props: { entry: v.th } }] : [];
+}
+const { entry } = Astro.props;
+---
+<RulesView entry={entry} alternates={{ en: '/rules' }} />

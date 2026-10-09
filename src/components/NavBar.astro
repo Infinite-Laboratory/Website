@@ -1,13 +1,17 @@
 ---
 import LogoLockup from './LogoLockup.astro';
+import LanguageSwitch from './LanguageSwitch.astro';
+import type { Alternates, Language } from '../lib/i18n';
 import { NAV_LINKS, AUTH_LINKS } from '../config';
 import { withBase } from '../lib/url';
 
 interface Props {
   /** Current route path, e.g. "/rules". */
   path: string;
+  lang: Language;
+  alternates: Alternates;
 }
-const { path } = Astro.props;
+const { path, lang, alternates } = Astro.props;
 // `path` is already the public route (no base, no .html).
 const isActive = (href: string) => path === href;
 ---
@@ -28,6 +32,7 @@ const isActive = (href: string) => path === href;
         <a class="tab" href={withBase(l.href)} aria-current={isActive(l.href) ? 'page' : undefined}>{l.label}</a>
       ))}
     </nav>
+    <LanguageSwitch lang={lang} alternates={alternates} />
     <div class="auth mono">
       {AUTH_LINKS.map((l) => (
         <a class:list={['btn', { p: l.primary }]} href={withBase(l.href)} aria-current={isActive(l.href) ? 'page' : undefined}>{l.label}</a>

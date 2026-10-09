@@ -5,6 +5,7 @@ import Footer from '../components/Footer.astro';
 import Announcement from '../components/Announcement.astro';
 import { SITE_NAME, SITE_DESCRIPTION } from '../config';
 import { withBase, routeOf } from '../lib/url';
+import { splitLanguage, LANGUAGES, type Alternates } from '../lib/i18n';
 
 interface Props {
   /** Page title without the site name. Omit on Home. */
@@ -14,16 +15,19 @@ interface Props {
   navOverlay?: boolean;
   /** Do not index (404). */
   noindex?: boolean;
+  /** Routes of the other-language variants of this page, when they exist. */
+  alternates?: Alternates;
 }
-const { title, description = SITE_DESCRIPTION, navOverlay = false, noindex = false } = Astro.props;
+const { title, description = SITE_DESCRIPTION, navOverlay = false, noindex = false, alternates = {} } = Astro.props;
 const fullTitle = title ? `${title} · ${SITE_NAME}` : SITE_NAME;
 // With build.format 'file' the build sees /store.html and /index.html; normalise to the public route.
-const path = routeOf(Astro.url.pathname);
-const canonical = new URL(withBase(path), Astro.site).href;
+const fullRoute = routeOf(Astro.url.pathname);
+const { lang, route: path } = splitLanguage(fullRoute);
+const canonical = new URL(withBase(fullRoute), Astro.site).href;
 const ogImage = new URL(withBase('/assets/og.png'), Astro.site).href;
 ---
 <!doctype html>
-<html lang="en">
+<html lang={lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -33,6 +37,7 @@ const ogImage = new URL(withBase('/assets/og.png'), Astro.site).href;
     <meta name="color-scheme" content="dark" />
     {noindex && <meta name="robots" content="noindex" />}
     <link rel="canonical" href={canonical} />
+    {LANGUAGES.filter((l) => alternates[l]).map((l) => <link rel="alternate" hreflang={l} href={new URL(withBase(alternates[l]!), Astro.site).href} />)}
     <link rel="icon" href={withBase('/favicon.ico')} sizes="any" />
     <link rel="icon" type="image/png" sizes="32x32" href={withBase('/favicon-32.png')} />
     <meta property="og:site_name" content={SITE_NAME} />
@@ -47,7 +52,7 @@ const ogImage = new URL(withBase('/assets/og.png'), Astro.site).href;
   <body>
     <a class="skip" href="#main">Skip to content</a>
     <div class:list={['shell-nav', { overlay: navOverlay }]}>
-      <NavBar path={path} />
+      <NavBar path={path} lang={lang} alternates={alternates} />
       <Announcement />
     </div>
     <main id="main">

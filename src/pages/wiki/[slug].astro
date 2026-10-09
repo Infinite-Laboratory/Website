@@ -1,66 +1,18 @@
 ---
-import { getCollection, render } from 'astro:content';
-import Layout from '../../layouts/Layout.astro';
-import { WIKI_SECTIONS } from '../../content.config';
-import { withBase } from '../../lib/url';
+import { getCollection } from 'astro:content';
+import WikiArticleView from '../../components/WikiArticleView.astro';
+import { articlesFor, neighbours } from '../../lib/wiki';
+import { variantsBySlug } from '../../lib/content';
 
 export async function getStaticPaths() {
-  const all = (await getCollection('wiki')).filter((e) => e.data.language === 'en');
-  const sorted = [...all].sort((a, b) => Object.keys(WIKI_SECTIONS).indexOf(a.data.section) - Object.keys(WIKI_SECTIONS).indexOf(b.data.section) || a.data.order - b.data.order);
-  return sorted.map((entry, i) => ({
+  const all = await getCollection('wiki');
+  const variants = variantsBySlug(all);
+  const en = articlesFor(all, 'en');
+  return en.map((entry, i) => ({
     params: { slug: entry.data.slug },
-    props: { entry, prev: sorted[i - 1], next: sorted[i + 1] },
+    props: { entry, ...neighbours(en, i), alternates: variants.get(entry.data.slug)?.th ? { th: `/th/wiki/${entry.data.slug}` } : {} },
   }));
 }
-
-const { entry, prev, next } = Astro.props;
-const { Content, headings } = await render(entry);
-const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
-const d = entry.data;
+const { entry, prev, next, alternates } = Astro.props;
 ---
-<Layout title={d.title} description={d.summary}>
-  <article class="wiki-article wrap">
-    <nav class="crumbs mono" aria-label="Breadcrumb"><a href={withBase('/wiki')}>Wiki</a> <span aria-hidden="true">/</span> <span>{WIKI_SECTIONS[d.section]}</span></nav>
-    <h1>{d.title}</h1>
-    <p class="sub">{d.summary}</p>
-    <div class="wiki-grid">
-      <div class="wiki-body"><Content /></div>
-      {toc.length > 0 && (
-        <nav class="toc" aria-label="On this page">
-          <h2 class="mono">On this page</h2>
-          <ol>{toc.map((h) => <li class={`d${h.depth}`}><a href={`#${h.slug}`}>{h.text}</a></li>)}</ol>
-        </nav>
-      )}
-    </div>
-    <nav class="pager" aria-label="Previous and next articles">
-      {prev ? <a class="prev" href={withBase(`/wiki/${prev.data.slug}`)}><span class="mono">Previous</span>{prev.data.title}</a> : <span />}
-      {next ? <a class="next" href={withBase(`/wiki/${next.data.slug}`)}><span class="mono">Next</span>{next.data.title}</a> : <span />}
-    </nav>
-  </article>
-</Layout>
-
-<style is:global>
-  .wiki-article { padding-top: var(--space-9); padding-bottom: var(--space-9); }
-  .crumbs { font-size: 11px; color: var(--fg-label); margin-bottom: 14px; display: flex; gap: 8px; }
-  .crumbs a:hover { color: #fff; }
-  .wiki-article h1 { font-weight: 300; font-size: clamp(30px, 5vw, 44px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 12px; }
-  .wiki-article .sub { font-size: 17px; color: var(--fg-dim); margin: 0 0 var(--space-8); max-width: 60ch; }
-  .wiki-grid { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: var(--space-9); }
-  .wiki-body { max-width: 68ch; font-size: 15px; line-height: 1.7; color: #c9ccd2; }
-  .wiki-body h2 { font-weight: 400; font-size: 22px; margin: 36px 0 10px; color: var(--fg); scroll-margin-top: 90px; }
-  .wiki-body h3 { font-weight: 400; font-size: 17px; margin: 26px 0 8px; color: var(--fg); scroll-margin-top: 90px; }
-  .wiki-body p, .wiki-body ul, .wiki-body ol { margin: 0 0 14px; }
-  .wiki-body a { color: var(--mint); text-decoration: underline; text-underline-offset: 3px; }
-  .wiki-body code { font: 400 13px var(--font-mono); background: var(--surface-2); padding: 1px 6px; border: 1px solid var(--line); }
-  .toc { align-self: start; position: sticky; top: 24px; border-left: 1px solid var(--line); padding-left: 18px; }
-  .toc h2 { font-weight: 400; font-size: 11px; color: var(--fg-label); margin: 0 0 10px; }
-  .toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; font-size: 13px; }
-  .toc .d3 { padding-left: 12px; }
-  .toc a { color: var(--fg-dim); } .toc a:hover { color: var(--fg); }
-  .pager { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: var(--space-9); border-top: 1px solid var(--line); padding-top: var(--space-6); }
-  .pager a { display: flex; flex-direction: column; gap: 6px; font-size: 15px; padding: 14px 16px; border: 1px solid var(--line); }
-  .pager a:hover { border-color: var(--line-strong); }
-  .pager a span { font-size: 11px; color: var(--fg-label); }
-  .pager .next { text-align: right; }
-  @media (max-width: 899px) { .wiki-grid { grid-template-columns: 1fr; } .toc { position: static; border-left: 0; padding-left: 0; order: -1; } }
-</style>
+<WikiArticleView entry={entry} prev={prev} next={next} lang="en" alternates={alternates} />

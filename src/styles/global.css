@@ -21,6 +21,9 @@ body {
   line-height: 1.5;
 }
 main { flex: 1; }
+/* Thai text: IBM Plex Sans Thai first so Thai renders cleanly. */
+html[lang='th'] body { font-family: 'IBM Plex Sans Thai', 'Geist', system-ui, sans-serif; }
+[lang='th'] { font-family: 'IBM Plex Sans Thai', 'Geist', system-ui, sans-serif; }
 a { color: inherit; text-decoration: none; }
 img, svg { display: block; }
 .mono { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.07em; }

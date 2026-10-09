@@ -11,3 +11,6 @@ dist-off/
 dist-base/
 dist-addr/
 dist-live/
+dist-th/
+tmp-content-th/
+tmp-cache-th/

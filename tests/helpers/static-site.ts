@@ -1,7 +1,7 @@
 import { execSync } from 'node:child_process';
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { existsSync, readFileSync, rmSync, statSync } from 'node:fs';
+import { cpSync, existsSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { extname, join } from 'node:path';
 
 const TYPES: Record<string, string> = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.woff2': 'font/woff2', '.woff': 'font/woff' };
@@ -39,4 +39,14 @@ export async function buildAndServe(outDir: string, env: Record<string, string>,
       rmSync(outDir, { recursive: true, force: true });
     },
   };
+}
+
+/** A copy of the content with the Thai test pages added, for builds that exercise the language switch.
+ *  Production never ships these: Thai copy is written and reviewed by a person first. */
+export function contentWithThaiFixtures(dir: string): string {
+  rmSync(dir, { recursive: true, force: true });
+  cpSync('src/content', dir, { recursive: true });
+  cpSync('tests/fixtures/th/rules.th.md', `${dir}/rules/rules.th.md`);
+  cpSync('tests/fixtures/th/technicians-play-here.th.md', `${dir}/wiki/technicians-play-here.th.md`);
+  return dir;
 }
