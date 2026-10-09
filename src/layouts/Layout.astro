@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import NavBar from '../components/NavBar.astro';
 import Footer from '../components/Footer.astro';
+import Announcement from '../components/Announcement.astro';
 import { SITE_NAME, SITE_DESCRIPTION } from '../config';
 
 interface Props {
@@ -46,6 +47,7 @@ const ogImage = new URL('/assets/og.png', Astro.site).href;
     <a class="skip" href="#main">Skip to content</a>
     <div class:list={['shell-nav', { overlay: navOverlay }]}>
       <NavBar path={path} />
+      <Announcement />
     </div>
     <main id="main">
       <slot />
