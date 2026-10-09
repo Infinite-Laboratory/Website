@@ -1,0 +1,17 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { STUBS } from '../stubs';
+
+export function getStaticPaths() {
+  return Object.keys(STUBS).map((slug) => ({ params: { stub: slug } }));
+}
+const { stub } = Astro.params;
+const page = STUBS[stub as string]!;
+---
+<Layout title={page.title}>
+  <section class="stub wrap">
+    <p class="mono eyebrow">Being built</p>
+    <h1>{page.title}</h1>
+    <p class="sub">This page is not open yet.</p>
+  </section>
+</Layout>

@@ -1,0 +1,26 @@
+/* Design tokens for the Infinite Laboratory site. */
+:root {
+  --bg: #0b0c0e;
+  --surface-1: #0f1114;
+  --surface-2: #14161a;
+  --line: #23262b;
+  --line-strong: #3a3e45;
+  --fg: #f2f3f5;
+  --fg-dim: #a0a5ae;
+  --fg-label: #8d929b;
+  --fg-meta: #767b86;
+  --blue: #7aa7fb;
+  --mint: #9bfba2;
+  --white: #ffffff;
+  --on-white: var(--bg);
+  --ghost-line: #ffffff33;
+
+  --font-sans: 'Geist', 'IBM Plex Sans Thai', system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, Menlo, monospace;
+
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-7: 28px;
+  --space-8: 34px;
+  --space-9: 48px;
+}

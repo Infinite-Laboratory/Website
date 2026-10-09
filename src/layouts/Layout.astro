@@ -1,0 +1,60 @@
+---
+import '../styles/global.css';
+import NavBar from '../components/NavBar.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_NAME, SITE_DESCRIPTION } from '../config';
+
+interface Props {
+  /** Page title without the site name. Omit on Home. */
+  title?: string;
+  description?: string;
+  /** Let a page's hero sit under the nav. */
+  navOverlay?: boolean;
+  /** Do not index (404). */
+  noindex?: boolean;
+}
+const { title, description = SITE_DESCRIPTION, navOverlay = false, noindex = false } = Astro.props;
+const fullTitle = title ? `${title} · ${SITE_NAME}` : SITE_NAME;
+// With build.format 'file' the build sees /store.html and /index.html; normalise to the public route.
+const path = Astro.url.pathname.replace(/\.html$/, '').replace(/\/index$/, '') || '/';
+const canonical = new URL(path, Astro.site).href;
+const ogImage = new URL('/assets/og.png', Astro.site).href;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0B0C0E" />
+    <meta name="color-scheme" content="dark" />
+    {noindex && <meta name="robots" content="noindex" />}
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <meta property="og:site_name" content={SITE_NAME} />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script is:inline>document.documentElement.classList.add('js');</script>
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <div class:list={['shell-nav', { overlay: navOverlay }]}>
+      <NavBar path={path} />
+    </div>
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>
+
+<style is:global>
+  .shell-nav.overlay { position: absolute; top: 0; left: 0; right: 0; z-index: 5; }
+  .shell-nav.overlay .site-nav { background: transparent; }
+</style>

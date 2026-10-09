@@ -1,0 +1,37 @@
+---
+import { DISCORD_INVITE, SINGULARITYLIB_URL, SITE_NAME } from '../config';
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="cols">
+    <div class="col">
+      <h2 class="mono">Community</h2>
+      <a href={DISCORD_INVITE} target="_blank" rel="noopener">Discord</a>
+      <a href="/team">Our team</a>
+      <a href="/brand">Brand kit</a>
+    </div>
+    <div class="col">
+      <h2 class="mono">Project</h2>
+      <a href="/wiki">Wiki</a>
+      <a href="/rules">Rules</a>
+      <a href={SINGULARITYLIB_URL} target="_blank" rel="noopener">SingularityLib</a>
+    </div>
+    <div class="col">
+      <h2 class="mono">Legal</h2>
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </div>
+  </div>
+  <p class="legal mono">&copy; {year} {SITE_NAME}</p>
+</footer>
+
+<style is:global>
+  .site-footer { border-top: 1px solid var(--line); padding: var(--space-8) var(--space-7) 28px; }
+  .site-footer .cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-6); max-width: 720px; }
+  .site-footer .col { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+  .site-footer h2 { font-weight: 400; font-size: 11px; line-height: 14px; margin: 0 0 6px; color: var(--fg-label); }
+  .site-footer .col a { font-size: 14px; color: var(--fg-dim); }
+  .site-footer .col a:hover { color: var(--fg); }
+  .site-footer .legal { margin: 30px 0 0; padding-top: 18px; border-top: 1px solid var(--line); font-size: 11px; line-height: 14px; color: var(--fg-meta); }
+  @media (max-width: 560px) { .site-footer .cols { grid-template-columns: 1fr; } }
+</style>

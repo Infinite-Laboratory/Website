@@ -1,0 +1,102 @@
+---
+import { NAV_LINKS, AUTH_LINKS, SITE_NAME } from '../config';
+
+interface Props {
+  /** Current route path, e.g. "/rules". */
+  path: string;
+}
+const { path } = Astro.props;
+const norm = (p: string) => (p.length > 1 ? p.replace(/\/$/, '') : p);
+const isActive = (href: string) => norm(path) === href;
+---
+<header class="site-nav">
+  <a class="brand" href="/" aria-label={`${SITE_NAME}, home`}>
+    <img src="/assets/mark-color.svg" alt="" width="52" height="29" />
+    <span class="mono"><b>Infinite</b> Laboratory</span>
+  </a>
+
+  <button
+    class="burger"
+    type="button"
+    aria-label="Menu"
+    aria-expanded="false"
+    aria-controls="site-menu"
+  ><i></i></button>
+
+  <div class="menu" id="site-menu">
+    <nav class="tabs mono" aria-label="Main">
+      {NAV_LINKS.map((l) => (
+        <a class="tab" href={l.href} aria-current={isActive(l.href) ? 'page' : undefined}>{l.label}</a>
+      ))}
+    </nav>
+    <div class="auth mono">
+      {AUTH_LINKS.map((l) => (
+        <a class:list={['btn', { p: l.primary }]} href={l.href} aria-current={isActive(l.href) ? 'page' : undefined}>{l.label}</a>
+      ))}
+    </div>
+  </div>
+</header>
+
+<script>
+  const burger = document.querySelector<HTMLButtonElement>('.burger');
+  const menu = document.getElementById('site-menu');
+  if (burger && menu) {
+    burger.addEventListener('click', () => {
+      const open = menu.classList.toggle('open');
+      burger.setAttribute('aria-expanded', String(open));
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && menu.classList.contains('open')) {
+        menu.classList.remove('open');
+        burger.setAttribute('aria-expanded', 'false');
+        burger.focus();
+      }
+    });
+  }
+</script>
+
+<style is:global>
+  .site-nav {
+    position: relative; z-index: 5;
+    display: flex; align-items: center; gap: 20px;
+    padding: 16px 24px; background: var(--bg);
+  }
+  .site-nav.overlay { position: absolute; top: 0; left: 0; right: 0; background: transparent; }
+  .brand { display: flex; align-items: center; gap: 12px; font-size: 12px; margin-right: 6px; white-space: nowrap; }
+  .brand b { font-weight: 500; }
+  .menu { flex: 1; display: flex; align-items: center; gap: 20px; }
+  .tabs { display: flex; gap: 26px; margin-left: 10px; flex: 1; }
+  .tab {
+    padding: 6px 0; font-size: 12px; color: #aab0ba;
+    border-bottom: 1px solid transparent;
+  }
+  .tab:hover { color: var(--fg); }
+  .tab[aria-current='page'] { color: var(--fg); border-bottom-color: var(--mint); }
+  .auth { display: flex; gap: 10px; align-items: center; }
+  .auth .btn { padding: 9px 13px; }
+  .burger { display: none; }
+
+  /* Collapse under 900px. Only when JavaScript runs; without it the links stay visible and wrap. */
+  @media (max-width: 899px) {
+    .site-nav { flex-wrap: wrap; }
+    .js .burger {
+      display: block; margin-left: auto; position: relative;
+      width: 42px; height: 38px; padding: 0; cursor: pointer;
+      background: var(--bg); border: 1px solid var(--ghost-line);
+    }
+    .burger i, .burger i::before, .burger i::after {
+      position: absolute; left: 11px; width: 18px; height: 1.5px; background: var(--fg); content: '';
+    }
+    .burger i { top: 18px; }
+    .burger i::before { left: 0; top: -6px; }
+    .burger i::after { left: 0; top: 6px; }
+    .menu { flex-basis: 100%; flex-direction: column; align-items: stretch; gap: 0; }
+    .tabs { flex-direction: column; gap: 0; margin: 0; }
+    .tab { padding: 14px 0; border-bottom: 1px solid #1a1d21; font-size: 13px; }
+    .tab[aria-current='page'] { border-bottom-color: var(--mint); }
+    .auth { padding-top: 16px; }
+    .auth .btn { flex: 1; text-align: center; padding: 12px; }
+    .js .menu { display: none; }
+    .js .menu.open { display: flex; }
+  }
+</style>
