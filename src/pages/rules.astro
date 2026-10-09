@@ -1,0 +1,107 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import { variantsBySlug, pick, formatDate } from '../lib/content';
+
+const entries = await getCollection('rules');
+const entry = pick(variantsBySlug(entries).get('rules'), 'en')!;
+const { Content, headings } = await render(entry);
+const rules = headings.filter((h) => h.depth === 2);
+const d = entry.data;
+---
+<Layout title={d.title} description={d.intro}>
+  <section class="rules-head wrap">
+    <p class="mono eyebrow">Rules</p>
+    <h1>{d.title}</h1>
+    {d.intro && <p class="sub">{d.intro}</p>}
+  </section>
+
+  <div class="rules-layout wrap">
+    <div class="rules-main">
+      {d.draft && <p class="draft mono" role="note">Draft rules. Final wording comes from the studio.</p>}
+      <div class="rules"><Content /></div>
+
+      {d.consequences.length > 0 && (
+        <div class="conseq">
+          <h2 class="mono sec-title">What happens if you break a rule</h2>
+          <div class="conseq-grid">
+            {d.consequences.map((c) => (
+              <div class="conseq-card"><div class="mono k">{c.step}</div><div class="r">{c.result}</div><div class="s">{c.detail}</div></div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+
+    <aside class="rules-rail" aria-label="About these rules">
+      <div class="rail-block"><h2 class="mono">Last updated</h2><p><time datetime={d.updated.toISOString().slice(0, 10)}>{formatDate(d.updated)}</time></p></div>
+      <div class="rail-block">
+        <h2 class="mono">Jump to</h2>
+        <ol class="jump">
+          {rules.map((r) => <li><a href={`#${r.slug}`}>{r.text}</a></li>)}
+        </ol>
+      </div>
+      {d.roles.length > 0 && (
+        <div class="rail-block">
+          <h2 class="mono">Roles</h2>
+          <p>{d.roles.map((r) => <><b>{r.term}</b> {r.text} </>)}</p>
+        </div>
+      )}
+      {d.appeals && <div class="rail-block"><h2 class="mono">Appeals</h2><p>{d.appeals}</p></div>}
+    </aside>
+  </div>
+</Layout>
+
+<script>
+  // Each rule gets a small link to itself, so staff can point a player at one rule. (The Jump to list works without JavaScript.)
+  document.querySelectorAll<HTMLHeadingElement>('.rules h2[id]').forEach((h) => {
+    const a = document.createElement('a');
+    a.className = 'anchor';
+    a.href = `#${h.id}`;
+    a.textContent = '#';
+    a.setAttribute('aria-label', `Link to rule: ${h.textContent}`);
+    h.append(a);
+  });
+</script>
+
+<style is:global>
+  .rules-head { padding-top: var(--space-9); padding-bottom: var(--space-6); }
+  .rules-head h1 { font-weight: 300; font-size: clamp(34px, 5vw, 44px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 12px; }
+  .rules-head .eyebrow { font-size: 12px; color: var(--fg-label); margin: 0 0 12px; }
+  .rules-head .sub { font-size: 17px; color: var(--fg-dim); margin: 0; max-width: 560px; }
+  .rules-layout { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: var(--space-9); padding-top: var(--space-6); padding-bottom: var(--space-9); }
+  .draft { font-size: 11px; color: var(--fg-label); border: 1px dashed var(--line-strong); padding: 8px 12px; margin: 0 0 var(--space-6); display: inline-block; }
+  .rules { border: 1px solid var(--line); counter-reset: rule; }
+  .rules h2 { counter-increment: rule; position: relative; margin: 0; padding: 20px 22px 4px 74px; font-size: 20px; font-weight: 400; scroll-margin-top: 90px; border-top: 1px solid var(--line); }
+  .rules h2:first-child { border-top: 0; }
+  .rules h2::before { content: 'R-' counter(rule, decimal-leading-zero); position: absolute; left: 22px; top: 25px; font: 400 11px/14px var(--font-mono); letter-spacing: .07em; color: var(--fg-meta); }
+  .rules h2:target { background: #ffffff08; }
+  .rules h2 .anchor { margin-left: 10px; color: var(--fg-meta); font-size: 13px; opacity: 0; }
+  .rules h2:hover .anchor, .rules h2 .anchor:focus-visible { opacity: 1; }
+  .rules p { margin: 0; padding: 0 22px 20px 74px; font-size: 14px; color: var(--fg-dim); }
+  .rail-block { border-top: 1px solid var(--line); padding: 18px 0 20px; }
+  .rail-block:first-child { border-top: 0; padding-top: 0; }
+  .rail-block h2 { font-weight: 400; font-size: 11px; color: var(--fg-label); margin: 0 0 10px; }
+  .rail-block p { margin: 0; font-size: 13px; color: var(--fg-dim); }
+  .rail-block b { font-weight: 400; color: var(--fg); }
+  .jump { list-style: none; margin: 0; padding: 0; counter-reset: j; display: grid; gap: 6px; }
+  .jump li { counter-increment: j; font-size: 13px; }
+  .jump li::before { content: 'R-' counter(j, decimal-leading-zero) ' '; font: 400 10px/14px var(--font-mono); color: var(--fg-meta); margin-right: 6px; }
+  .jump a { color: var(--fg-dim); }
+  .jump a:hover { color: var(--fg); }
+  .conseq { margin-top: var(--space-9); }
+  .conseq-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--line); }
+  .conseq-card { padding: 18px; border-right: 1px solid var(--line); }
+  .conseq-card:last-child { border-right: 0; }
+  .conseq-card .k { font-size: 11px; color: var(--fg-meta); }
+  .conseq-card .r { font-size: 17px; margin-top: 14px; }
+  .conseq-card .s { font-size: 12px; color: var(--fg-dim); margin-top: 6px; }
+  @media (max-width: 899px) {
+    .rules-layout { grid-template-columns: 1fr; gap: var(--space-6); }
+    .rules-rail { order: -1; }
+    .conseq-grid { grid-template-columns: 1fr; }
+    .conseq-card { border-right: 0; border-bottom: 1px solid var(--line); }
+    .conseq-card:last-child { border-bottom: 0; }
+    .rules h2 { padding-left: 62px; } .rules h2::before { left: 16px; } .rules p { padding-left: 62px; }
+  }
+</style>

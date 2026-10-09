@@ -107,8 +107,8 @@ test.describe('metadata', () => {
   });
 
   test('titles differ per page', async ({ page }) => {
-    await page.goto('/rules');
-    await expect(page).toHaveTitle('Rules · Infinite Laboratory');
+    await page.goto('/store');
+    await expect(page).toHaveTitle('Store · Infinite Laboratory');
   });
 
   test('social preview image exists and is 1200x630', async ({ request }) => {
