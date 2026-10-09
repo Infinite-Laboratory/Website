@@ -1,17 +1,21 @@
 ---
-import { GOGGLES } from '../lib/goggles';
+import { GOGGLES, GOGGLES_DARK } from '../lib/goggles';
+
+interface Props { dark?: boolean; width?: number; height?: number }
+const { dark = false, width = 52, height = 24 } = Astro.props;
+const mark = dark ? GOGGLES_DARK : GOGGLES;
 ---
 <!-- Each pixel is a crisp rect, so the mark never blurs. Lens interior pixels carry data-row so the click flash can shade them. -->
 <svg
   class="goggles"
-  viewBox={`0 0 ${GOGGLES.width} ${GOGGLES.height}`}
-  width="52"
-  height="24"
+  viewBox={`0 0 ${mark.width} ${mark.height}`}
+  width={width}
+  height={height}
   shape-rendering="crispEdges"
   aria-hidden="true"
   focusable="false"
 >
-  {GOGGLES.pixels.map((p) => (
+  {mark.pixels.map((p) => (
     <rect x={p.x} y={p.y} width="1" height="1" fill={p.fill} class={p.lens ? 'lp' : undefined} data-row={p.lens ? p.y : undefined} />
   ))}
 </svg>

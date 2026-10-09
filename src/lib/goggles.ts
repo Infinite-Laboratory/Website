@@ -1,7 +1,9 @@
 // The goggles mark on a 28 x 13 pixel grid. Same drawing as docs/mockups and assets/logo/mark-color.svg.
-const TOP = [0x7a, 0xa7, 0xfb];
-const BOT = [0x9b, 0xfb, 0xa2];
-const BASE = '#3b5a3a';
+// Colors for the normal mark and for the black-lens mark (used where there is no player face).
+const LENS = {
+  color: { top: [0x7a, 0xa7, 0xfb], bot: [0x9b, 0xfb, 0xa2], base: '#3b5a3a' },
+  dark: { top: [0x24, 0x26, 0x2b], bot: [0x07, 0x07, 0x09], base: '#000000' },
+};
 const FRAME = '#8a919c';
 const BLACK = '#000000';
 const W = 28;
@@ -9,10 +11,12 @@ const H = 13;
 
 export type Px = { x: number; y: number; fill: string; lens: boolean };
 
-const grad = (t: number) =>
-  '#' + TOP.map((a, i) => Math.round(a + (BOT[i]! - a) * t).toString(16).padStart(2, '0')).join('');
+const gradient = (top: number[], bot: number[]) => (t: number) =>
+  '#' + top.map((a, i) => Math.round(a + (bot[i]! - a) * t).toString(16).padStart(2, '0')).join('');
 
-function build(): Px[] {
+function build(kind: 'color' | 'dark'): Px[] {
+  const { top, bot, base } = LENS[kind];
+  const grad = gradient(top, bot);
   const g: (string | null)[][] = Array.from({ length: H }, () => new Array<string | null>(W).fill(null));
   const lensCell = new Set<string>();
   const lens = (x: number, y: number, w: number, h: number) => {
@@ -20,7 +24,7 @@ function build(): Px[] {
       for (let i = 0; i < w; i++) {
         if ((i === 0 || i === w - 1) && (j === 0 || j === h - 1)) continue;
         const edge = i === 0 || j === 0 || i === w - 1 || j === h - 1;
-        g[y + j + 1]![x + i + 1] = edge ? FRAME : j === h - 2 ? BASE : grad((j - 1) / (h - 3));
+        g[y + j + 1]![x + i + 1] = edge ? FRAME : j === h - 2 ? base : grad((j - 1) / (h - 3));
         if (!edge) lensCell.add(`${x + i + 1},${y + j + 1}`);
       }
     }
@@ -52,4 +56,5 @@ function build(): Px[] {
   return out;
 }
 
-export const GOGGLES = { width: W, height: H, pixels: build() };
+export const GOGGLES = { width: W, height: H, pixels: build('color') };
+export const GOGGLES_DARK = { width: W, height: H, pixels: build('dark') };

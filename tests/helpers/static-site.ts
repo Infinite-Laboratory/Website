@@ -50,3 +50,11 @@ export function contentWithThaiFixtures(dir: string): string {
   cpSync('tests/fixtures/th/technicians-play-here.th.md', `${dir}/wiki/technicians-play-here.th.md`);
   return dir;
 }
+
+/** A copy of the content plus extra files: { 'team/extra.en.md': 'tests/fixtures/team/extra.en.md' }. */
+export function contentWith(dir: string, extra: Record<string, string>): string {
+  rmSync(dir, { recursive: true, force: true });
+  cpSync('src/content', dir, { recursive: true });
+  for (const [to, from] of Object.entries(extra)) cpSync(from, `${dir}/${to}`);
+  return dir;
+}
