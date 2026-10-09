@@ -69,4 +69,16 @@ const team = defineCollection({
   }),
 });
 
-export const collections = { rules, buildlog, wiki, team };
+// Privacy and Terms. `draft: true` until a qualified person has reviewed the text (Thailand PDPA).
+const legal = defineCollection({
+  loader: glob({ pattern: '*.md', base: `${CONTENT}/legal`, generateId }),
+  schema: z.object({
+    ...base,
+    updated: z.coerce.date(),
+    summary: z.string(),
+    /** Set to the review date once a qualified person has reviewed the text. */
+    reviewed: z.coerce.date().optional(),
+  }),
+});
+
+export const collections = { rules, buildlog, wiki, team, legal };

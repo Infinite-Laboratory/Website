@@ -1,0 +1,38 @@
+---
+import { render } from 'astro:content';
+import type { CollectionEntry } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import PageHead from './PageHead.astro';
+import { formatDate } from '../lib/content';
+
+interface Props { entry: CollectionEntry<'legal'> }
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+const isDraft = d.draft && !d.reviewed;
+---
+<Layout title={d.title} description={d.summary}>
+  <PageHead eyebrow="Legal" title={d.title} />
+  <article class="legal wrap">
+    <p class="legal-meta mono">
+      {isDraft && <span class="draft-tag">Draft</span>}
+      Last updated <time datetime={d.updated.toISOString().slice(0, 10)}>{formatDate(d.updated)}</time>
+      {d.reviewed && <> &middot; Reviewed <time datetime={d.reviewed.toISOString().slice(0, 10)}>{formatDate(d.reviewed)}</time></>}
+    </p>
+    {isDraft && <p class="legal-draft" role="note">This is a draft. It has not been reviewed by a qualified person yet, so do not rely on it as final.</p>}
+    <div class="legal-body"><Content /></div>
+  </article>
+</Layout>
+
+<style is:global>
+  .legal { padding-bottom: var(--space-9); max-width: 760px; margin: 0; }
+  .legal-meta { font-size: 11px; color: var(--fg-label); margin: 0 0 16px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .draft-tag { color: var(--fg); border: 1px solid var(--line-strong); padding: 2px 6px; }
+  .legal-draft { font-size: 13px; color: var(--fg-dim); border: 1px dashed var(--line-strong); padding: 10px 14px; margin: 0 0 var(--space-6); }
+  .legal-body { font-size: 15px; line-height: 1.7; color: #c9ccd2; }
+  .legal-body h2 { font-weight: 400; font-size: 20px; margin: 32px 0 8px; color: var(--fg); }
+  .legal-body p, .legal-body ul { margin: 0 0 14px; }
+  .legal-body ul { padding-left: 20px; display: grid; gap: 8px; }
+  .legal-body a { color: var(--mint); text-decoration: underline; text-underline-offset: 3px; }
+  .legal-body strong { font-weight: 500; color: var(--fg); }
+</style>
