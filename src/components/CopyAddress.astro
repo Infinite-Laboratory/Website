@@ -1,0 +1,52 @@
+---
+interface Props {
+  /** Server address. `null` while the server is in development. */
+  address: string | null;
+}
+const { address } = Astro.props;
+---
+{address ? (
+  <button class="addr-copy" type="button" data-copy={address} aria-label={`Copy server address ${address}`}>
+    <svg class="cp" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><rect x="4.5" y="4.5" width="8" height="8"/><path d="M9.5 4.5V1.5h-8v8h3"/></svg>
+    <!-- Selectable text, so it can be copied by hand when the clipboard is blocked. -->
+    <span class="ad"><span class="addr-text">{address}</span><b class="cursor" aria-hidden="true"></b></span>
+    <em class="copied" aria-hidden="true">copied</em>
+  </button>
+) : (
+  <span class="addr-soon"><i class="dot" aria-hidden="true"></i>Opening soon</span>
+)}
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.addr-copy').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const text = btn.dataset.copy ?? '';
+      try { await navigator.clipboard.writeText(text); } catch { /* blocked: the address stays selectable */ }
+      btn.classList.add('ok');
+      setTimeout(() => btn.classList.remove('ok'), 1400);
+    });
+  });
+</script>
+
+<style is:global>
+  .addr-copy {
+    position: relative; display: inline-flex; align-items: center; gap: 10px; cursor: pointer;
+    padding: 2px 0; background: none; border: 0; color: #c9ccd2;
+    font: 400 13px/1.5 var(--font-mono);
+  }
+  .addr-copy:hover { color: #fff; }
+  .addr-copy .cp { color: var(--fg-label); }
+  .addr-copy .ad { display: inline-flex; align-items: center; line-height: 1; user-select: text; }
+  .addr-copy .cursor { display: block; width: 8px; height: 1.05em; background: var(--fg-label); margin-left: 1px; animation: lab-blink 1s steps(1) infinite; }
+  @keyframes lab-blink { 50% { opacity: 0; } }
+  .addr-copy .copied {
+    display: none; position: absolute; inset: 0; align-items: center; justify-content: center;
+    background: var(--bg); color: var(--mint); font-style: normal; font-size: 12px;
+    text-transform: uppercase; letter-spacing: 0.1em;
+  }
+  .addr-copy.ok .copied { display: flex; text-shadow: 0 0 6px #9bfba2, 0 0 14px #9bfba2aa, 0 0 28px #7aa7fb88; animation: lab-glow 0.9s ease-out; }
+  .addr-copy.ok .cp, .addr-copy.ok .ad { visibility: hidden; }
+  @keyframes lab-glow { 0% { opacity: 0; filter: blur(6px); } 40% { opacity: 1; filter: blur(0); } }
+  .addr-soon { display: inline-flex; align-items: center; gap: 10px; font: 400 13px/1.5 var(--font-mono); color: var(--fg-dim); }
+  .addr-soon .dot { width: 7px; height: 7px; background: #5d626b; display: inline-block; }
+  @media (prefers-reduced-motion: reduce) { .addr-copy .cursor { animation: none; } }
+</style>

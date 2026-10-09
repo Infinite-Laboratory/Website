@@ -1,14 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { DISCORD_INVITE, SERVER_ADDRESS } from '../config';
+import Hero from '../components/Hero.astro';
 ---
-<Layout>
-  <section class="stub wrap">
-    <p class="mono eyebrow">Experiment 002 &middot; Deepslate MC</p>
-    <h1>You are Fellow <span class="grad">&infin;</span></h1>
-    <p class="sub">A community-driven, cross-platform Minecraft server.</p>
-    <p class="mono eyebrow">Java and Bedrock</p>
-    <p><a class="btn p" href={DISCORD_INVITE} target="_blank" rel="noopener">Join Discord &gt;</a></p>
-    <p class="mono eyebrow">{SERVER_ADDRESS ?? 'Opening soon'}</p>
-  </section>
+<Layout navOverlay>
+  <Hero />
 </Layout>
