@@ -1,0 +1,8 @@
+---
+import { getCollection } from 'astro:content';
+import LegalView from '../components/LegalView.astro';
+import { variantsBySlug } from '../lib/content';
+
+const entry = variantsBySlug(await getCollection('legal')).get('terms')!.en!;
+---
+<LegalView entry={entry} />

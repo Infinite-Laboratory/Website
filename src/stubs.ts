@@ -3,6 +3,4 @@
 export const STUBS: Record<string, { title: string }> = {
   login: { title: 'Login' },
   register: { title: 'Register' },
-  privacy: { title: 'Privacy' },
-  terms: { title: 'Terms' },
 };
