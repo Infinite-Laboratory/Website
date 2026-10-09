@@ -1,5 +1,6 @@
 ---
 import CopyAddress from './CopyAddress.astro';
+import DiscordCount from './DiscordCount.astro';
 import { DISCORD_INVITE, SERVER_ADDRESS, SINGULARITYLIB_URL } from '../config';
 import { withBase } from '../lib/url';
 ---
@@ -27,6 +28,7 @@ import { withBase } from '../lib/url';
     </div>
     <div class="hero-links mono">
       <a class="feedback" href={DISCORD_INVITE} target="_blank" rel="noopener">Send feedback &gt;</a>
+      <DiscordCount />
     </div>
   </div>
 </section>
@@ -67,6 +69,8 @@ import { withBase } from '../lib/url';
   .backed-names { font-size: 17px; color: #c9ccd2; display: flex; gap: 14px; flex-wrap: wrap; }
   .backed-names a:hover { color: #fff; }
   .hero-links { margin-top: 22px; display: flex; gap: 16px; font-size: 11px; color: var(--fg-dim); }
+  .hero-links .discord-count { color: var(--fg-dim); }
+  .hero-links .discord-count:hover { color: var(--fg); }
   .hero-links .feedback { color: var(--mint); }
   .hero-links .feedback:hover { text-shadow: 0 0 8px #9bfba2aa; }
   @media (max-width: 899px) {
