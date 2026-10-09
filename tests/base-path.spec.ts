@@ -41,7 +41,7 @@ test('the home page and a nested page load with styles and the right nav state',
   await expect(page.locator('[aria-current="page"]')).toHaveText('Home');
   await page.goto(url('/rules'));
   await expect(page.locator('[aria-current="page"]')).toHaveText('Rules');
-  await expect(page).toHaveTitle('Rules · Infinite Laboratory');
+  await expect(page).toHaveTitle('Lab rules · Infinite Laboratory');
 });
 
 test('nav, footer and announcement links stay under the base and resolve', async ({ page, request }) => {
