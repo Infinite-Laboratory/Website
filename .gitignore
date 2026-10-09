@@ -16,3 +16,7 @@ tmp-content-th/
 tmp-cache-th/
 dist-vote/
 dist-stats/
+.cache/
+dist-team/
+tmp-content-team/
+tmp-cache-team/

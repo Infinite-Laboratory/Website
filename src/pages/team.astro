@@ -1,0 +1,62 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import PageHead from '../components/PageHead.astro';
+import Goggles from '../components/Goggles.astro';
+import { faceDataUri } from '../lib/face';
+
+const members = (await getCollection('team')).filter((m) => m.data.language === 'en').sort((a, b) => a.data.order - b.data.order);
+const cards = await Promise.all(members.map(async (m) => ({ m, face: await faceDataUri(m.data.ign) })));
+---
+<Layout title="Our team" description="The people who build and run Deepslate MC. They play in the same world, under the same rules.">
+  <PageHead eyebrow="Our team" title="Who builds this" sub="The team plays in the same world, under the same rules as everyone." />
+  <section class="wrap" style="padding-bottom: var(--space-9)">
+    <ul class="team-grid">
+      {cards.map(({ m, face }) => (
+        <li class="member" data-member={m.data.slug}>
+          <div class="face" aria-hidden={face ? 'true' : undefined}>
+            {face
+              ? <img src={face} alt="" width="64" height="64" />
+              : <Goggles dark width={64} height={30} />}
+          </div>
+          <div class="info">
+            <h2>{m.data.title} <span class="role mono">{m.data.role}</span></h2>
+            {m.data.ign
+              ? <button type="button" class="ign mono" data-ign={m.data.ign} aria-label={`Copy in-game name ${m.data.ign}`}><span>{m.data.ign}</span><em aria-hidden="true">Copied</em></button>
+              : <p class="ign-soon mono">In-game name coming soon</p>}
+            {m.data.website && <a class="site mono" href={m.data.website.url} target="_blank" rel="noopener nofollow">{m.data.website.label} &gt;</a>}
+          </div>
+        </li>
+      ))}
+    </ul>
+  </section>
+</Layout>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('.ign').forEach((b) => {
+    b.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(b.dataset.ign ?? ''); } catch { /* the name stays selectable */ }
+      b.classList.add('ok');
+      setTimeout(() => b.classList.remove('ok'), 1200);
+    });
+  });
+</script>
+
+<style is:global>
+  .team-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--line); }
+  .member { display: flex; gap: 20px; padding: 24px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); align-items: center; }
+  .member:nth-child(2n) { border-right: 0; }
+  .member:nth-last-child(-n+2) { border-bottom: 0; }
+  .member .face { width: 72px; height: 72px; flex: none; display: flex; align-items: center; justify-content: center; background: var(--surface-2); border: 1px solid var(--line); }
+  .member .face img { image-rendering: pixelated; }
+  .member h2 { margin: 0 0 8px; font-weight: 400; font-size: 22px; display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+  .member .role { font-size: 10px; color: var(--mint); border: 1px solid #9bfba244; padding: 2px 6px; }
+  .member .ign { position: relative; background: none; border: 0; padding: 2px 0; color: var(--fg-dim); cursor: pointer; font-size: 13px; text-transform: none; }
+  .member .ign:hover { color: var(--fg); }
+  .member .ign em { display: none; position: absolute; inset: 0; align-items: center; background: var(--bg); color: var(--mint); font-style: normal; text-transform: uppercase; }
+  .member .ign.ok em { display: flex; }
+  .member .ign-soon { margin: 0; font-size: 12px; color: var(--fg-meta); }
+  .member .site { display: inline-block; margin-top: 10px; font-size: 11px; color: var(--fg-dim); border-bottom: 1px solid var(--line-strong); padding-bottom: 2px; }
+  .member .site:hover { color: #fff; }
+  @media (max-width: 899px) { .team-grid { grid-template-columns: 1fr; } .member { border-right: 0 !important; } .member:nth-last-child(-n+2) { border-bottom: 1px solid var(--line); } .member:last-child { border-bottom: 0; } }
+</style>

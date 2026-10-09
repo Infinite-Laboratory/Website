@@ -57,4 +57,16 @@ const wiki = defineCollection({
   }),
 });
 
-export const collections = { rules, buildlog, wiki };
+// One markdown file per team member. Optional fields stay empty until the member supplies them.
+const team = defineCollection({
+  loader: glob({ pattern: '*.md', base: `${CONTENT}/team`, generateId }),
+  schema: z.object({
+    ...base,
+    /** Display name (the file's `title`). */
+    ign: z.string().optional(),
+    role: z.string(),
+    website: z.object({ label: z.string(), url: z.string().url().startsWith('https://') }).optional(),
+  }),
+});
+
+export const collections = { rules, buildlog, wiki, team };

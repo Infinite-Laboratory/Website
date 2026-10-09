@@ -10,6 +10,8 @@ export default defineConfig({
   webServer: {
     command: 'npm run build && npm run preview',
     url: 'http://localhost:4321',
+    // Faces come from a public skin service at build time; tests must not depend on the network.
+    env: { LAB_FACES: 'off' },
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },
