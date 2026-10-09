@@ -1,8 +1,10 @@
 ---
+import LogoLockup from './LogoLockup.astro';
 import { DISCORD_INVITE, SINGULARITYLIB_URL, SITE_NAME } from '../config';
 const year = new Date().getFullYear();
 ---
 <footer class="site-footer">
+  <div class="foot-brand"><LogoLockup /></div>
   <div class="cols">
     <div class="col">
       <h2 class="mono">Community</h2>
@@ -27,6 +29,7 @@ const year = new Date().getFullYear();
 
 <style is:global>
   .site-footer { border-top: 1px solid var(--line); padding: var(--space-8) var(--space-7) 28px; }
+  .site-footer .foot-brand { margin-bottom: var(--space-8); }
   .site-footer .cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-6); max-width: 720px; }
   .site-footer .col { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
   .site-footer h2 { font-weight: 400; font-size: 11px; line-height: 14px; margin: 0 0 6px; color: var(--fg-label); }

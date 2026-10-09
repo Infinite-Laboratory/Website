@@ -1,0 +1,18 @@
+---
+import Goggles from './Goggles.astro';
+import { SITE_NAME } from '../config';
+---
+<a class="brand" href="/" data-logo aria-label={`${SITE_NAME}, home`}>
+  <Goggles />
+  <span class="mono wordmark"><b>Infinite</b> Laboratory</span>
+</a>
+
+<script>
+  import { attachLogoClick } from '../scripts/logo-click';
+  document.querySelectorAll<HTMLAnchorElement>('[data-logo]').forEach(attachLogoClick);
+</script>
+
+<style is:global>
+  .brand { display: flex; align-items: center; gap: 12px; font-size: 12px; white-space: nowrap; }
+  .brand b { font-weight: 500; }
+</style>
