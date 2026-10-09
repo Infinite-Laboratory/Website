@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
+import PageHead from '../components/PageHead.astro';
 import { WIKI_SECTIONS } from '../content.config';
 import { withBase } from '../lib/url';
 
@@ -12,11 +13,7 @@ const sections = (Object.keys(WIKI_SECTIONS) as (keyof typeof WIKI_SECTIONS)[]).
 }));
 ---
 <Layout title="Wiki" description="How Deepslate MC works: getting started, the jobs economy, commands and the experiments.">
-  <section class="rules-head wrap">
-    <p class="mono eyebrow">Wiki</p>
-    <h1>How it works</h1>
-    <p class="sub">Guides for fellows. Written down as we build, so some sections are still empty.</p>
-  </section>
+  <PageHead eyebrow="Wiki" title="How it works" sub="Guides for fellows. Written down as we build, so some sections are still empty." />
 
   <section class="wrap wiki-search" aria-label="Search the wiki" hidden>
     <label class="mono" for="wiki-q">Search</label>

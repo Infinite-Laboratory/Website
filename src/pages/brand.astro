@@ -5,14 +5,15 @@ import { BRAND_GROUPS, BRAND_COLORS, BRAND_FONTS } from '../data/brand';
 import { humanSize, publicFileSize } from '../lib/files';
 import { withBase } from '../lib/url';
 import { DISCORD_INVITE } from '../config';
+import BrandRequestForm from '../components/BrandRequestForm.astro';
 ---
 <Layout title="Brand kit" description="Approved logos, icons and images for Infinite Laboratory, with colors, fonts and how to use them.">
   <PageHead eyebrow="Brand kit" title="Use the real files" sub="Approved logos, icons and images. Download them as they are. Do not redraw them." />
 
-  <div class="wrap brand">
+  <div class="wrap brandkit">
     <nav class="brand-jump mono" aria-label="Brand kit sections">
       {BRAND_GROUPS.map((g) => <a href={`#${g.id}`}>{g.title}</a>)}
-      <a href="#colors">Colors</a><a href="#fonts">Fonts</a><a href="#using">Using these files</a>
+      <a href="#colors">Colors</a><a href="#fonts">Fonts</a><a href="#using">Using these files</a><a href="#request">Ask to use it</a>
     </nav>
 
     {BRAND_GROUPS.map((g) => (
@@ -92,11 +93,13 @@ import { DISCORD_INVITE } from '../config';
         </ul>
       </div>
     </section>
+
+    <BrandRequestForm />
   </div>
 </Layout>
 
 <style is:global>
-  .brand { padding-bottom: var(--space-9); }
+  .brandkit { padding-bottom: var(--space-9); }
   .brand-jump { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 11px; color: var(--fg-dim); padding: 0 0 var(--space-8); }
   .brand-jump a:hover { color: #fff; }
   .brand-group { border-top: 1px solid var(--line); padding: var(--space-8) 0; scroll-margin-top: 70px; }
@@ -128,10 +131,10 @@ import { DISCORD_INVITE } from '../config';
   .fonts b { font-weight: 400; } .fonts span { color: var(--fg-dim); font-size: 13px; }
   .dd { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-8); }
   .dd h3, .real h3 { font-weight: 400; font-size: 11px; color: var(--fg-label); margin: 0 0 12px; }
-  .brand ul li { font-size: 14px; color: var(--fg-dim); line-height: 1.6; }
+  .brandkit ul li { font-size: 14px; color: var(--fg-dim); line-height: 1.6; }
   .dd ul, .real ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; }
   .real { margin-top: var(--space-8); }
-  .brand a { text-underline-offset: 3px; }
+  .brandkit a { text-underline-offset: 3px; }
   .dd a, .real a { color: var(--mint); text-decoration: underline; }
   @media (max-width: 899px) { .dd { grid-template-columns: 1fr; } }
 </style>
