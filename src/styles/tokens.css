@@ -14,6 +14,9 @@
   --white: #ffffff;
   --on-white: var(--bg);
   --ghost-line: #ffffff33;
+  --notice: #f7b928;
+  --on-notice: var(--bg);
+  --danger: #f3a0a0;
 
   --font-sans: 'Geist', 'IBM Plex Sans Thai', system-ui, sans-serif;
   --font-mono: 'Geist Mono', ui-monospace, Menlo, monospace;

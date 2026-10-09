@@ -16,6 +16,19 @@ export const DISCORD_GUILD_ID = '1097120015448277114';
 
 export const SINGULARITYLIB_URL = 'https://github.com/Pinont/SingularityLib';
 
+import type { Announcement } from './lib/announcement';
+
+/** The one announcement shown under the nav on every page. Set to `null` for none. */
+export const ANNOUNCEMENT: Announcement | null =
+  process.env.LAB_ANNOUNCEMENT === 'off'
+    ? null
+    : {
+        id: '2026-10-early-access',
+        kind: 'info',
+        message: 'Deepslate MC is in development. Sign up for early access and get a unique rank and perks.',
+        link: { label: 'Sign up', href: '/register' },
+      };
+
 /** Main nav, in order. `href` is the route path. */
 export const NAV_LINKS = [
   { label: 'Home', href: '/' },

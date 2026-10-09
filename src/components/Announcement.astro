@@ -1,0 +1,56 @@
+---
+import { ANNOUNCEMENT } from '../config';
+import { activeAnnouncement } from '../lib/announcement';
+
+const a = activeAnnouncement(ANNOUNCEMENT);
+---
+{a && (
+  <div class="ann" role="status" data-id={a.id} data-kind={a.kind ?? 'info'} data-until={a.until}>
+    <p>
+      {a.message}
+      {a.link && <a href={a.link.href}>{a.link.label} &gt;</a>}
+    </p>
+    <button class="x" type="button" aria-label="Dismiss announcement">&times;</button>
+  </div>
+  <script is:inline>
+    // Runs right after the strip so a dismissed or ended announcement never flashes.
+    (function () {
+      var a = document.currentScript.previousElementSibling;
+      if (!a) return;
+      var until = a.getAttribute('data-until');
+      if (until && Date.now() >= new Date(until).getTime()) { a.hidden = true; return; }
+      try { if (localStorage.getItem('lab-ann-dismissed') === a.getAttribute('data-id')) a.hidden = true; } catch (e) {}
+      a.querySelector('.x').addEventListener('click', function () {
+        a.hidden = true;
+        try { localStorage.setItem('lab-ann-dismissed', a.getAttribute('data-id')); } catch (e) {}
+      });
+    })();
+  </script>
+)}
+
+<style is:global>
+  .ann {
+    --a: var(--notice);
+    position: relative; z-index: 3;
+    display: flex; align-items: center; justify-content: center;
+    padding: 10px 56px; background: var(--a); color: var(--on-notice);
+    font-size: 13px; line-height: 20px; text-align: center;
+  }
+  .ann[hidden] { display: none; }
+  .ann[data-kind='event'] { --a: var(--mint); }
+  .ann[data-kind='warn'] { --a: var(--danger); }
+  .ann p { margin: 0; min-width: 0; }
+  .ann p a {
+    color: var(--on-notice); text-decoration: underline; text-underline-offset: 3px;
+    white-space: nowrap; margin-left: 8px;
+    font: 400 12px/20px var(--font-mono); text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .ann .x {
+    position: absolute; right: 20px; top: 50%; margin-top: -14px;
+    width: 28px; height: 28px; padding: 0; cursor: pointer;
+    background: none; border: 1px solid transparent; color: var(--on-notice); font-size: 18px; line-height: 1;
+  }
+  .ann .x:hover { border-color: var(--on-notice); }
+  .ann :focus-visible { outline-color: var(--on-notice); }
+  @media (max-width: 899px) { .ann { padding: 10px 44px; } .ann .x { right: 8px; } }
+</style>
