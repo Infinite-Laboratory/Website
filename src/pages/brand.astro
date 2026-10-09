@@ -1,0 +1,137 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PageHead from '../components/PageHead.astro';
+import { BRAND_GROUPS, BRAND_COLORS, BRAND_FONTS } from '../data/brand';
+import { humanSize, publicFileSize } from '../lib/files';
+import { withBase } from '../lib/url';
+import { DISCORD_INVITE } from '../config';
+---
+<Layout title="Brand kit" description="Approved logos, icons and images for Infinite Laboratory, with colors, fonts and how to use them.">
+  <PageHead eyebrow="Brand kit" title="Use the real files" sub="Approved logos, icons and images. Download them as they are. Do not redraw them." />
+
+  <div class="wrap brand">
+    <nav class="brand-jump mono" aria-label="Brand kit sections">
+      {BRAND_GROUPS.map((g) => <a href={`#${g.id}`}>{g.title}</a>)}
+      <a href="#colors">Colors</a><a href="#fonts">Fonts</a><a href="#using">Using these files</a>
+    </nav>
+
+    {BRAND_GROUPS.map((g) => (
+      <section class="brand-group" id={g.id} aria-labelledby={`${g.id}-t`}>
+        <h2 id={`${g.id}-t`} class="mono sec-title">{g.title}</h2>
+        <p class="intro">{g.intro}</p>
+        <div class="brand-grid">
+          {g.assets.map((a) => (
+            <article class="asset" data-asset={a.id}>
+              <div class={`preview ${a.bg}`}>
+                {a.preview
+                  ? <img src={withBase(a.preview)} alt={`${g.title}: ${a.title}`} loading="lazy" decoding="async" />
+                  : <span class="mono">No preview</span>}
+              </div>
+              <h3>{a.title}</h3>
+              {a.note && <p class="note">{a.note}</p>}
+              <ul class="files">
+                {a.files.map((file) => (
+                  <li>
+                    <a href={withBase(file.path)} download>
+                      <span class="mono type">{file.label}</span>
+                      <span class="size">{humanSize(publicFileSize(file.path))}</span>
+                      <span class="mono dl" aria-hidden="true">Download</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </article>
+          ))}
+        </div>
+      </section>
+    ))}
+
+    <section class="brand-group" id="colors" aria-labelledby="colors-t">
+      <h2 id="colors-t" class="mono sec-title">Colors</h2>
+      <p class="intro">The logo gradient runs from blue to mint. Everything else is dark and grey.</p>
+      <ul class="swatches">
+        {BRAND_COLORS.map((c) => (
+          <li><span class="chip" style={`background:${c.hex}`}></span><b>{c.name}</b><span class="mono hex">{c.hex}</span><span class="use">{c.use}</span></li>
+        ))}
+      </ul>
+    </section>
+
+    <section class="brand-group" id="fonts" aria-labelledby="fonts-t">
+      <h2 id="fonts-t" class="mono sec-title">Fonts</h2>
+      <ul class="fonts">
+        {BRAND_FONTS.map((f) => <li><b>{f.name}</b><span>{f.use}</span></li>)}
+      </ul>
+    </section>
+
+    <section class="brand-group" id="using" aria-labelledby="using-t">
+      <h2 id="using-t" class="mono sec-title">Using these files</h2>
+      <div class="dd">
+        <div>
+          <h3 class="mono">Do</h3>
+          <ul>
+            <li>Use the files as they are, and keep clear space around the logo.</li>
+            <li>Link to <a href={withBase('/')}>this site</a> or to our <a href={DISCORD_INVITE} target="_blank" rel="noopener">Discord</a> when you write about us.</li>
+            <li>Use the one-color versions where color is not possible.</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="mono">Do not</h3>
+          <ul>
+            <li>Recolor, stretch, rotate, outline or add effects to the logo.</li>
+            <li>Redraw it or make your own version.</li>
+            <li>Use it to suggest you are the studio, or that we run or endorse you, unless we have said so.</li>
+            <li>Mix it with Minecraft or Mojang marks. We are not an official Minecraft service.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="real">
+        <h3 class="mono">How to spot the real us</h3>
+        <ul>
+          <li>Our one Discord invite is <a href={DISCORD_INVITE} target="_blank" rel="noopener">{DISCORD_INVITE.replace('https://', '')}</a>. Be careful with any other.</li>
+          <li>Logging in here uses Discord only. We never ask for a password, and nothing on this site costs money while the store is closed.</li>
+        </ul>
+      </div>
+    </section>
+  </div>
+</Layout>
+
+<style is:global>
+  .brand { padding-bottom: var(--space-9); }
+  .brand-jump { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 11px; color: var(--fg-dim); padding: 0 0 var(--space-8); }
+  .brand-jump a:hover { color: #fff; }
+  .brand-group { border-top: 1px solid var(--line); padding: var(--space-8) 0; scroll-margin-top: 70px; }
+  .brand-group .intro { color: var(--fg-dim); font-size: 14px; margin: 0 0 var(--space-6); max-width: 64ch; }
+  .brand-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); border: 1px solid var(--line); }
+  .asset { padding: 18px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); margin: 0 -1px -1px 0; }
+  .asset .preview { height: 150px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--line); margin-bottom: 14px; overflow: hidden; }
+  .asset .preview img { max-width: 86%; max-height: 120px; object-fit: contain; image-rendering: pixelated; }
+  .asset .preview.dark { background: #0b0c0e; }
+  .asset .preview.light { background: #f2f3f5; }
+  .asset .preview.checker { background: repeating-conic-gradient(#1a1d21 0 25%, #14161a 0 50%) 0 0 / 16px 16px; }
+  .asset h3 { margin: 0 0 4px; font-weight: 400; font-size: 17px; }
+  .asset .note { margin: 0 0 12px; font-size: 13px; color: var(--fg-dim); }
+  .files { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; }
+  .files a { display: flex; gap: 10px; align-items: baseline; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 13px; }
+  .files a:hover { color: var(--mint); }
+  .files .type { font-size: 11px; color: var(--fg-dim); flex: 1; }
+  .files .size { color: var(--fg-meta); font-size: 12px; }
+  .files .dl { font-size: 10px; color: var(--mint); }
+  .swatches { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); border: 1px solid var(--line); }
+  .swatches li { padding: 16px; display: grid; gap: 4px; border-right: 1px solid var(--line); margin-right: -1px; }
+  .swatches .chip { width: 100%; height: 44px; border: 1px solid var(--line); margin-bottom: 8px; }
+  .swatches .hex { font-size: 12px; color: var(--fg-dim); text-transform: uppercase; }
+  .swatches .use { font-size: 12px; color: var(--fg-meta); }
+  .swatches b { font-weight: 400; }
+  .fonts { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); }
+  .fonts li { display: flex; justify-content: space-between; gap: 20px; padding: 14px 18px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .fonts li:last-child { border-bottom: 0; }
+  .fonts b { font-weight: 400; } .fonts span { color: var(--fg-dim); font-size: 13px; }
+  .dd { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-8); }
+  .dd h3, .real h3 { font-weight: 400; font-size: 11px; color: var(--fg-label); margin: 0 0 12px; }
+  .brand ul li { font-size: 14px; color: var(--fg-dim); line-height: 1.6; }
+  .dd ul, .real ul { margin: 0; padding-left: 18px; display: grid; gap: 8px; }
+  .real { margin-top: var(--space-8); }
+  .brand a { text-underline-offset: 3px; }
+  .dd a, .real a { color: var(--mint); text-decoration: underline; }
+  @media (max-width: 899px) { .dd { grid-template-columns: 1fr; } }
+</style>
