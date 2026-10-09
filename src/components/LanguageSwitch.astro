@@ -1,0 +1,26 @@
+---
+import { LANGUAGES, LANGUAGE_NAMES, type Alternates, type Language } from '../lib/i18n';
+import { withBase } from '../lib/url';
+
+interface Props { lang: Language; alternates: Alternates }
+const { lang, alternates } = Astro.props;
+---
+<nav class="lang" aria-label="Language">
+  {LANGUAGES.map((l) => {
+    const href = l === lang ? undefined : alternates[l];
+    const current = l === lang;
+    return href
+      ? <a href={withBase(href)} hreflang={l} lang={l}>{LANGUAGE_NAMES[l]}</a>
+      : <span lang={l} aria-current={current ? 'true' : undefined} aria-disabled={current ? undefined : 'true'} title={current ? undefined : 'Not translated yet'}>{LANGUAGE_NAMES[l]}</span>;
+  })}
+</nav>
+
+<style is:global>
+  .lang { display: flex; gap: 12px; font-size: 12px; align-items: center; margin-right: 6px; }
+  .lang a { color: var(--fg-dim); }
+  .lang a:hover { color: var(--fg); }
+  .lang span[aria-current] { color: var(--fg); }
+  .lang span[aria-disabled] { color: var(--fg-meta); cursor: default; }
+  .lang + .auth { margin-left: 0; }
+  @media (max-width: 899px) { .lang { padding: 14px 0 0; } }
+</style>

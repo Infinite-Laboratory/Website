@@ -1,0 +1,16 @@
+---
+import { getCollection } from 'astro:content';
+import WikiArticleView from '../../../components/WikiArticleView.astro';
+import { articlesFor, neighbours } from '../../../lib/wiki';
+
+// Thai articles exist only where a Thai variant has been written.
+export async function getStaticPaths() {
+  const th = articlesFor(await getCollection('wiki'), 'th');
+  return th.map((entry, i) => ({
+    params: { lang: 'th', slug: entry.data.slug },
+    props: { entry, ...neighbours(th, i), alternates: { en: `/wiki/${entry.data.slug}` } },
+  }));
+}
+const { entry, prev, next, alternates } = Astro.props;
+---
+<WikiArticleView entry={entry} prev={prev} next={next} lang="th" alternates={alternates} />
