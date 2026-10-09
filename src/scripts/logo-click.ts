@@ -18,14 +18,17 @@ const BOUNCE_KEYFRAMES: Keyframe[] = [
 ];
 
 const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-const onHome = () => location.pathname === '/' || location.pathname === '/index.html';
+let homeHref = '/';
+const strip = (p: string) => p.replace(/\/index\.html$/, '/').replace(/([^/])\/+$/, '$1');
+const onHome = () => strip(location.pathname) === strip(new URL(homeHref, location.href).pathname);
 
 function goHome(smooth: boolean) {
   if (onHome()) window.scrollTo({ top: 0, behavior: smooth ? 'smooth' : 'auto' });
-  else location.href = '/';
+  else location.href = homeHref;
 }
 
 export function attachLogoClick(link: HTMLAnchorElement) {
+  homeHref = link.getAttribute('href') ?? '/';
   const mark = link.querySelector<SVGElement>('.goggles');
   let busy = false;
 
