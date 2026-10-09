@@ -1,0 +1,53 @@
+---
+import { withBase } from '../lib/url';
+interface Props { variant?: 'hero' | 'page' }
+const { variant = 'hero' } = Astro.props;
+---
+<div class={`aurora-bg v-${variant}`} aria-hidden="true">
+  <div class="aurora-base"></div>
+  <div class="aurora-fx">
+    <div class="aurora"></div>
+    <div data-bubbles data-bubbles-count="9" data-bubbles-seed="63670"></div>
+  </div>
+  <div class="aurora-shade"></div>
+</div>
+<script is:inline src={withBase('/assets/bubbles.js')} defer></script>
+
+<style is:global>
+  /* One aurora for the whole site, copied from the mockups: a blue-to-mint band that drifts and breathes over 10 s. */
+  .aurora-bg { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .aurora-base { position: absolute; inset: 0; background: var(--bg); }
+  .aurora-fx {
+    position: absolute; inset: 0;
+    -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0) 0, #000 20%, #000 38%, rgba(0,0,0,.55) 66%, rgba(0,0,0,0) 100%);
+    mask-image: linear-gradient(180deg, rgba(0,0,0,0) 0, #000 20%, #000 38%, rgba(0,0,0,.55) 66%, rgba(0,0,0,0) 100%);
+  }
+  .aurora {
+    position: absolute; left: -10%; right: -10%; top: 14%; height: 58%;
+    background: linear-gradient(90deg, rgba(122,167,251,0) 0%, rgba(122,167,251,.26) 28%, rgba(155,251,162,.20) 62%, rgba(155,251,162,0) 100%);
+    filter: blur(46px);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 30%, #000 62%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0, #000 30%, #000 62%, transparent 100%);
+    will-change: opacity, transform; animation: aurora-drift 10s ease-in-out infinite;
+  }
+  .aurora-bg.v-page .aurora { top: 6%; height: 80%; }
+  @keyframes aurora-drift {
+    0%, 100% { opacity: .55; transform: translate3d(-4%, 0, 0); }
+    50% { opacity: 1; transform: translate3d(4%, 0, 0); }
+  }
+  .aurora-shade {
+    position: absolute; inset: 0; z-index: 1;
+    background:
+      linear-gradient(90deg, rgba(11,12,14,.88) 0%, rgba(11,12,14,.62) 30%, rgba(11,12,14,.18) 58%, rgba(11,12,14,0) 74%),
+      linear-gradient(180deg, #0b0c0e 0, rgba(11,12,14,.82) 9%, rgba(11,12,14,0) 24%, rgba(11,12,14,0) 52%, rgba(11,12,14,.85) 86%, #0b0c0e 100%);
+  }
+  .aurora-bg.v-page .aurora-shade {
+    background:
+      linear-gradient(90deg, rgba(11,12,14,.88) 0%, rgba(11,12,14,.6) 36%, rgba(11,12,14,0) 72%),
+      linear-gradient(180deg, #0b0c0e 0, rgba(11,12,14,.8) 12%, rgba(11,12,14,0) 30%, rgba(11,12,14,0) 60%, #0b0c0e 100%);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .aurora { animation: none; opacity: .8; }
+    [data-bubbles] { display: none; }
+  }
+</style>

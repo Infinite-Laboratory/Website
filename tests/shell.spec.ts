@@ -122,14 +122,15 @@ test.describe('metadata', () => {
 
 test.describe('page edge and fonts', () => {
   test('the top page edge is plain #0B0C0E', async ({ page }) => {
-    await page.goto('/rules');
-    await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(11, 12, 14)');
-    await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(11, 12, 14)');
-    await expect(page.locator('.site-nav')).toHaveCSS('background-color', 'rgb(11, 12, 14)');
-    // On Home the hero starts at the very top and its first pixels are plain #0B0C0E too.
-    await page.goto('/');
-    await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(11, 12, 14)');
-    await expect(page.locator('.hero-shade')).toHaveCSS('background-image', /rgb\(11, 12, 14\)/);
+    // Every page header starts at the very top, with the nav floating over it. The first pixels of the header are plain #0B0C0E.
+    for (const route of ['/', '/rules', '/store', '/wiki/technicians-play-here']) {
+      await page.goto(route);
+      await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(11, 12, 14)');
+      await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(11, 12, 14)');
+      await expect(page.locator('.aurora-shade').first()).toHaveCSS('background-image', /rgb\(11, 12, 14\) 0(px|%)/);
+      const top = await page.locator('.aurora-bg').first().boundingBox();
+      expect(top!.y, route).toBe(0);
+    }
   });
 
   test('text renders without waiting on fonts', async ({ page }) => {

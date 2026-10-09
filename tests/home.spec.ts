@@ -49,8 +49,8 @@ test.describe('hero', () => {
     await page.goto('/');
     await expect(page.locator('.aurora')).toBeVisible();
     await expect(page.locator('.lbub-root')).toBeAttached();
-    await expect(page.locator('.hero-fx')).toHaveAttribute('aria-hidden', 'true');
-    const mask = await page.locator('.hero-fx').evaluate((el) => getComputedStyle(el).maskImage || getComputedStyle(el).webkitMaskImage);
+    await expect(page.locator('.aurora-bg')).toHaveAttribute('aria-hidden', 'true');
+    const mask = await page.locator('.aurora-fx').evaluate((el) => getComputedStyle(el).maskImage || getComputedStyle(el).webkitMaskImage);
     expect(mask).toContain('linear-gradient');
     expect(mask).toMatch(/rgba\(0, 0, 0, 0\) 100%/);
   });

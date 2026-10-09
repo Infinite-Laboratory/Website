@@ -1,12 +1,12 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import PageHead from '../components/PageHead.astro';
 import { withBase } from '../lib/url';
 ---
 <Layout title="Not found" noindex>
-  <section class="stub wrap">
-    <p class="mono eyebrow">Error 404</p>
-    <h1>This page failed.</h1>
-    <p class="sub">We logged it. Good.</p>
+  <PageHead eyebrow="Error 404" title="This page failed." sub="We logged it. Good." />
+  <section class="wrap" style="padding-bottom: var(--space-9)">
     <p class="actions"><a class="btn p" href={withBase('/')}>Back to the lab</a> <a class="btn" href={withBase('/wiki')}>Read the wiki</a></p>
   </section>
 </Layout>
+<style is:global>.actions { display: flex; gap: 10px; flex-wrap: wrap; margin: 0; }</style>
