@@ -1,0 +1,153 @@
+---
+import { USES, FILES, MAX_DESCRIPTION } from '../lib/brand-request';
+import { BRAND_REQUEST_ENDPOINT, DISCORD_INVITE } from '../config';
+---
+<section class="brand-group" id="request" aria-labelledby="request-t">
+  <h2 id="request-t" class="mono sec-title">Ask to use the brand</h2>
+
+  <div class="req-grid">
+    <div class="req-aside">
+      <h3 class="mono">What happens next</h3>
+      <p>A person reads every request and replies by email. Nothing is approved automatically.</p>
+      <h3 class="mono">No request needed</h3>
+      <p>Linking to us, writing about us and showing your support need no request. Just use the files as they are.</p>
+      <h3 class="mono">Your answers</h3>
+      <p>We keep them only to answer your request, and delete them if you ask.</p>
+    </div>
+
+    {BRAND_REQUEST_ENDPOINT ? (
+      <form id="brandreq" class="req-form" novalidate data-endpoint={BRAND_REQUEST_ENDPOINT}>
+        <div class="fld"><label for="r-name">Name or channel</label><input id="r-name" name="name" type="text" autocomplete="name" required aria-describedby="e-name" /><p class="err" id="e-name" role="alert"></p></div>
+        <div class="fld"><label for="r-email">Email</label><input id="r-email" name="email" type="email" autocomplete="email" required aria-describedby="e-email" /><p class="err" id="e-email" role="alert"></p></div>
+        <div class="fld"><label for="r-discord">Discord name <span class="opt">(optional)</span></label><input id="r-discord" name="discord" type="text" autocomplete="off" /></div>
+        <fieldset class="fld" aria-describedby="e-uses"><legend>What is it for?</legend>
+          <div class="chips">{USES.map((u) => <label class="chip"><input type="checkbox" name="uses" value={u.id} />{u.label}</label>)}</div><p class="err" id="e-uses" role="alert"></p></fieldset>
+        <fieldset class="fld" aria-describedby="e-files"><legend>Which files?</legend>
+          <div class="chips">{FILES.map((f) => <label class="chip"><input type="radio" name="files" value={f.id} />{f.label}</label>)}</div><p class="err" id="e-files" role="alert"></p></fieldset>
+        <div class="fld"><label for="r-link">Where will it appear? (link)</label><input id="r-link" name="link" type="url" inputmode="url" placeholder="https://" required aria-describedby="e-link" /><p class="err" id="e-link" role="alert"></p></div>
+        <div class="fld"><label for="r-desc">About it</label><textarea id="r-desc" name="description" rows="5" required aria-describedby="e-description r-count"></textarea><p class="count mono" id="r-count" aria-live="polite">0 / {MAX_DESCRIPTION}</p><p class="err" id="e-description" role="alert"></p></div>
+        <div class="fld hp" aria-hidden="true"><label for="r-site">Leave this empty</label><input id="r-site" name="site" type="text" tabindex="-1" autocomplete="off" /></div>
+        <div class="fld"><label class="agree"><input type="checkbox" name="agree" aria-describedby="e-agree" />I have read the guidelines above and will follow them.</label><p class="err" id="e-agree" role="alert"></p></div>
+        <button class="btn p" type="submit">Send request</button>
+        <p class="req-status" id="req-status" role="status"></p>
+      </form>
+    ) : (
+      <div class="req-closed" id="req-closed">
+        <p class="mono k">Requests</p>
+        <h3>Requests open soon</h3>
+        <p>The request form is not open yet. For now, ask in our <a href={DISCORD_INVITE} target="_blank" rel="noopener">Discord</a> and a person will reply.</p>
+      </div>
+    )}
+  </div>
+</section>
+
+<script>
+  import { validateRequest, MAX_DESCRIPTION, type BrandRequest } from '../lib/brand-request';
+
+  const form = document.getElementById('brandreq') as HTMLFormElement | null;
+  if (form) {
+    const status = document.getElementById('req-status')!;
+    const desc = form.elements.namedItem('description') as HTMLTextAreaElement;
+    const count = document.getElementById('r-count')!;
+    desc.addEventListener('input', () => (count.textContent = `${desc.value.length} / ${MAX_DESCRIPTION}`));
+
+    const read = (): BrandRequest => {
+      const d = new FormData(form);
+      return {
+        name: String(d.get('name') ?? ''),
+        email: String(d.get('email') ?? ''),
+        discord: String(d.get('discord') ?? ''),
+        uses: d.getAll('uses').map(String),
+        files: String(d.get('files') ?? ''),
+        link: String(d.get('link') ?? ''),
+        description: String(d.get('description') ?? ''),
+        agree: d.get('agree') === 'on',
+      };
+    };
+
+    const show = (errors: Record<string, string | undefined>) => {
+      let first: HTMLElement | null = null;
+      for (const key of ['name', 'email', 'uses', 'files', 'link', 'description', 'agree']) {
+        const p = document.getElementById(`e-${key}`)!;
+        p.textContent = errors[key] ?? '';
+        const field = p.closest('.fld')!;
+        field.classList.toggle('bad', Boolean(errors[key]));
+        const input = field.querySelector<HTMLElement>('input, textarea');
+        input?.setAttribute('aria-invalid', String(Boolean(errors[key])));
+        if (errors[key] && !first) first = input;
+      }
+      first?.focus();
+    };
+
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      status.textContent = '';
+      const request = read();
+      const errors = validateRequest(request);
+      show(errors);
+      if (Object.keys(errors).length) return;
+
+      const honeypot = (form.elements.namedItem('site') as HTMLInputElement).value;
+      const button = form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+      const done = () => {
+        status.className = 'req-status ok';
+        status.textContent = 'Thank you. Your request is in. A person will read it and reply by email.';
+        form.reset();
+        count.textContent = `0 / ${MAX_DESCRIPTION}`;
+      };
+      if (honeypot) return done(); // a bot filled the hidden field: pretend it worked, send nothing
+
+      button.disabled = true;
+      status.className = 'req-status';
+      status.textContent = 'Sending…';
+      try {
+        const res = await fetch(form.dataset.endpoint!, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(request),
+        });
+        if (!res.ok) throw new Error(String(res.status));
+        done();
+      } catch {
+        status.className = 'req-status bad';
+        status.textContent = 'We could not send your request. Nothing was lost on this page: please try again in a minute, or ask in Discord.';
+      } finally {
+        button.disabled = false;
+      }
+    });
+  }
+</script>
+
+<style is:global>
+  .req-grid { display: grid; grid-template-columns: 280px minmax(0, 1fr); gap: var(--space-9); }
+  .req-aside h3 { font-weight: 400; font-size: 11px; color: var(--fg-label); margin: 0 0 8px; }
+  .req-aside p { margin: 0 0 22px; font-size: 14px; color: var(--fg-dim); }
+  .req-form { display: grid; gap: 18px; max-width: 620px; }
+  .req-form .fld { display: grid; gap: 6px; border: 0; padding: 0; margin: 0; min-width: 0; }
+  .req-form label, .req-form legend { font-size: 13px; color: var(--fg); padding: 0; }
+  .req-form .opt { color: var(--fg-meta); }
+  .req-form input[type='text'], .req-form input[type='email'], .req-form input[type='url'], .req-form textarea {
+    background: var(--surface-1); border: 1px solid var(--line-strong); color: var(--fg); padding: 12px 14px; font: 400 15px var(--font-sans); border-radius: 0; width: 100%;
+  }
+  .req-form input:focus-visible, .req-form textarea:focus-visible { border-color: var(--mint); outline: none; }
+  .req-form .bad input[type='text'], .req-form .bad input[type='email'], .req-form .bad input[type='url'], .req-form .bad textarea { border-color: var(--danger); }
+  .req-form .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .req-form .chip { display: inline-flex; gap: 8px; align-items: center; border: 1px solid var(--line-strong); padding: 8px 12px; font-size: 13px; color: var(--fg-dim); cursor: pointer; }
+  .req-form .chip:has(input:checked) { color: var(--fg); border-color: var(--mint); }
+  .req-form .chip input { accent-color: var(--mint); }
+  .req-form .agree { display: flex; gap: 10px; align-items: flex-start; font-size: 14px; color: var(--fg-dim); }
+  .req-form .count { font-size: 11px; color: var(--fg-meta); margin: 0; text-align: right; }
+  .req-form .err { margin: 0; min-height: 0; font-size: 12px; color: var(--danger); }
+  .req-form .err:empty { display: none; }
+  .req-form .hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+  .req-form button[disabled] { opacity: .6; cursor: progress; }
+  .req-status { margin: 0; font-size: 14px; color: var(--fg-dim); }
+  .req-status.ok { color: var(--mint); }
+  .req-status.bad { color: var(--danger); }
+  .req-closed { border: 1px solid var(--line); padding: 28px; max-width: 620px; }
+  .req-closed .k { font-size: 11px; color: var(--fg-label); margin: 0 0 8px; }
+  .req-closed h3 { font-weight: 300; font-size: 24px; margin: 0 0 10px; }
+  .req-closed p { margin: 0 0 10px; font-size: 14px; color: var(--fg-dim); }
+  .req-closed a { color: var(--mint); text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 899px) { .req-grid { grid-template-columns: 1fr; gap: var(--space-6); } }
+</style>

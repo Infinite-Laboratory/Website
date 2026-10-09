@@ -7,3 +7,10 @@ const { eyebrow, title, sub } = Astro.props;
   <h1>{title}</h1>
   {sub && <p class="sub">{sub}</p>}
 </section>
+
+<style is:global>
+  .rules-head { padding-top: var(--space-9); padding-bottom: var(--space-6); }
+  .rules-head h1 { font-weight: 300; font-size: clamp(34px, 5vw, 44px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 12px; }
+  .rules-head .eyebrow { font-size: 12px; color: var(--fg-label); margin: 0 0 12px; }
+  .rules-head .sub { font-size: 17px; color: var(--fg-dim); margin: 0; max-width: 560px; }
+</style>

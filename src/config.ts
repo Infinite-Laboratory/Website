@@ -14,6 +14,9 @@ export const SERVER_ADDRESS: string | null = process.env.LAB_SERVER_ADDRESS || n
 export const DISCORD_INVITE = 'https://discord.gg/FQe3Mt6nA';
 export const DISCORD_GUILD_ID = '1097120015448277114';
 
+/** Where the brand-use request form posts its answers. `null` until the backend exists: the page then says requests open soon. */
+export const BRAND_REQUEST_ENDPOINT: string | null = process.env.LAB_BRAND_ENDPOINT || null;
+
 export const SINGULARITYLIB_URL = 'https://github.com/Pinont/SingularityLib';
 
 import type { Announcement } from './lib/announcement';

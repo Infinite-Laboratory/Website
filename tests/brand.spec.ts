@@ -110,3 +110,29 @@ test.describe('size formatting', () => {
     expect(humanSize(1235637)).toBe('1.2 MB');
   });
 });
+
+test('the page layout stacks its sections: nothing sits beside or beyond the content column', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.goto('/brand');
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+  const groups = await page.locator('.brand-group').evaluateAll((els) => els.map((e) => { const r = e.getBoundingClientRect(); return { x: Math.round(r.x), y: Math.round(r.y), w: Math.round(r.width) }; }));
+  expect(new Set(groups.map((g) => g.x)).size).toBe(1);
+  for (let i = 1; i < groups.length; i++) expect(groups[i]!.y).toBeGreaterThan(groups[i - 1]!.y);
+  for (const g of groups) expect(g.w).toBeGreaterThan(900);
+});
+
+test('every page that uses the shared page header styles it the same way (light 40px heading)', async ({ page }) => {
+  for (const route of ['/brand', '/rules', '/build-log', '/wiki', '/store', '/vote', '/leaderboards', '/team']) {
+    await page.goto(route);
+    const h1 = await page.locator('main h1').first().evaluate((el) => ({ w: getComputedStyle(el).fontWeight, s: parseFloat(getComputedStyle(el).fontSize) }));
+    expect(h1.w, route).toBe('300');
+    expect(h1.s, route).toBeGreaterThanOrEqual(34);
+  }
+});
+
+test('section headings on the Brand kit page are the small mono labels, not big headings', async ({ page }) => {
+  await page.goto('/brand');
+  const size = await page.locator('#colors h2').evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+  expect(size).toBeLessThanOrEqual(13);
+});
