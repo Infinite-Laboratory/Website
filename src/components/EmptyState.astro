@@ -1,0 +1,17 @@
+---
+interface Props { label: string; title: string }
+const { label, title } = Astro.props;
+---
+<div class="empty-state">
+  <p class="mono k">{label}</p>
+  <h2>{title}</h2>
+  <div class="t"><slot /></div>
+</div>
+
+<style is:global>
+  .empty-state { border: 1px solid var(--line); padding: 34px 28px; }
+  .empty-state .k { font-size: 11px; color: var(--fg-label); margin: 0 0 10px; }
+  .empty-state h2 { font-weight: 300; font-size: 24px; margin: 0 0 10px; letter-spacing: -0.01em; }
+  .empty-state .t { font-size: 14px; color: var(--fg-dim); max-width: 60ch; }
+  .empty-state .t p { margin: 0 0 14px; }
+</style>

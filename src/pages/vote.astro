@@ -1,0 +1,40 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PageHead from '../components/PageHead.astro';
+import EmptyState from '../components/EmptyState.astro';
+import { VOTE_SITES } from '../data/vote-sites';
+---
+<Layout title="Vote" description="Vote for Deepslate MC on server lists. Voting helps more fellows find us.">
+  <PageHead eyebrow="Vote" title="Vote for the server" sub="Voting helps more fellows find us, and more fellows means more feedback." />
+  <section class="wrap" style="padding-bottom: var(--space-9)">
+    {VOTE_SITES.length === 0 ? (
+      <EmptyState label="Vote" title="Voting opens soon">
+        <p>We have not picked the vote sites yet. Check back soon.</p>
+        <p>There are no rewards for voting for now. It is just a way to help.</p>
+      </EmptyState>
+    ) : (
+      <>
+        <p class="vote-note">There are no rewards for voting for now. It is just a way to help.</p>
+        <ul class="vote-list">
+          {VOTE_SITES.map((s) => (
+            <li>
+              <a href={s.url} target="_blank" rel="noopener noreferrer"><span class="name">{s.name}</span><span class="mono go">Vote &gt;</span></a>
+              <span class="cooldown">{s.cooldown}</span>
+            </li>
+          ))}
+        </ul>
+      </>
+    )}
+  </section>
+</Layout>
+
+<style is:global>
+  .vote-note { color: var(--fg-dim); font-size: 14px; margin: 0 0 var(--space-6); }
+  .vote-list { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); }
+  .vote-list li { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 18px 22px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  .vote-list li:last-child { border-bottom: 0; }
+  .vote-list a { display: flex; gap: 16px; align-items: baseline; font-size: 18px; }
+  .vote-list .go { font-size: 11px; color: var(--mint); }
+  .vote-list a:hover .name { color: #fff; }
+  .vote-list .cooldown { font-size: 13px; color: var(--fg-dim); }
+</style>

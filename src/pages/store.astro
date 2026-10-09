@@ -1,0 +1,15 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PageHead from '../components/PageHead.astro';
+import EmptyState from '../components/EmptyState.astro';
+import { DISCORD_INVITE } from '../config';
+---
+<Layout title="Store" description="The store is not open yet.">
+  <PageHead eyebrow="Store" title="Not open yet" />
+  <section class="wrap" style="padding-bottom: var(--space-9)">
+    <EmptyState label="Store" title="The store is not open yet">
+      <p>We have not decided what, if anything, to sell. Nothing here is for sale, and nothing you do on this site costs money.</p>
+      <p><a class="btn" href={DISCORD_INVITE} target="_blank" rel="noopener">Join Discord &gt;</a></p>
+    </EmptyState>
+  </section>
+</Layout>

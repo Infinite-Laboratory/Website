@@ -1,0 +1,94 @@
+---
+import Layout from '../layouts/Layout.astro';
+import PageHead from '../components/PageHead.astro';
+import EmptyState from '../components/EmptyState.astro';
+import { loadFeed } from '../lib/stats';
+import { formatFellow } from '../lib/fellow';
+import { EXPERIMENTS } from '../data/experiments';
+
+const boards = loadFeed();
+const metrics = [...new Map(boards.map((b) => [b.metric, b.label])).entries()];
+const experiments = [...new Set(boards.map((b) => b.experiment))].map((id) => ({ id, name: EXPERIMENTS.find((e) => e.id === id)?.name ?? id }));
+const nf = new Intl.NumberFormat('en-US');
+---
+<Layout title="Leaderboards" description="How fellows compare, per experiment.">
+  <PageHead eyebrow="Leaderboards" title="Leaderboards" sub="Every row shows the same thing for every fellow: rank, number, name and value." />
+  <section class="wrap" style="padding-bottom: var(--space-9)">
+    {boards.length === 0 ? (
+      <EmptyState label="Leaderboards" title="Not yet recorded">
+        <p>Nothing has been recorded yet. Standings appear here once the server starts reporting them.</p>
+      </EmptyState>
+    ) : (
+      <div class="lb">
+        <div class="lb-controls">
+          <div class="lb-tabs mono" role="group" aria-label="Metric">
+            {metrics.map(([m, label], i) => <button type="button" class="lb-tab" data-metric={m} aria-pressed={i === 0 ? "true" : "false"}>{label}</button>)}
+          </div>
+          {experiments.length > 1 && (
+            <label class="lb-filter mono">Experiment
+              <select id="lb-exp">
+                {experiments.map((e) => <option value={e.id}>{e.name}</option>)}
+              </select>
+            </label>
+          )}
+        </div>
+        {boards.map((b) => (
+          <section class="lb-board" data-metric={b.metric} data-experiment={b.experiment} aria-label={`${b.label}, ${EXPERIMENTS.find((e) => e.id === b.experiment)?.name ?? b.experiment}`}>
+            <h2 class="mono">{b.label} <span>{EXPERIMENTS.find((e) => e.id === b.experiment)?.name ?? b.experiment}</span></h2>
+            {b.rows.length === 0 ? <p class="lb-none">Not yet recorded.</p> : (
+              <table>
+                <thead><tr><th scope="col">Rank</th><th scope="col">Fellow</th><th scope="col">Name</th><th scope="col" class="r">{b.unit ?? 'Value'}</th></tr></thead>
+                <tbody>
+                  {b.rows.map((r) => <tr><td class="rk mono">{r.rank}</td><td class="no mono">{formatFellow(r.number)}</td><td>{r.name}</td><td class="r mono">{nf.format(r.value)}</td></tr>)}
+                </tbody>
+              </table>
+            )}
+          </section>
+        ))}
+      </div>
+    )}
+  </section>
+</Layout>
+
+<script>
+  // Tabs and the experiment filter. Without JavaScript every board is simply listed.
+  const root = document.querySelector('.lb');
+  if (root) {
+    root.classList.add('is-tabbed');
+    const tabs = root.querySelectorAll<HTMLButtonElement>('.lb-tab');
+    const select = root.querySelector<HTMLSelectElement>('#lb-exp');
+    const boards = root.querySelectorAll<HTMLElement>('.lb-board');
+    let metric = tabs[0]?.dataset.metric;
+    const apply = () => {
+      const exp = select?.value ?? boards[0]?.dataset.experiment;
+      boards.forEach((b) => (b.hidden = !(b.dataset.metric === metric && b.dataset.experiment === exp)));
+      tabs.forEach((t) => t.setAttribute('aria-pressed', String(t.dataset.metric === metric)));
+    };
+    tabs.forEach((t) => t.addEventListener('click', () => { metric = t.dataset.metric; apply(); }));
+    select?.addEventListener('change', apply);
+    apply();
+  }
+</script>
+
+<style is:global>
+  .lb-controls { display: none; }
+  .lb.is-tabbed .lb-controls { display: flex; gap: 20px; flex-wrap: wrap; align-items: center; margin-bottom: var(--space-6); }
+  .lb-tabs { display: flex; gap: 8px; }
+  .lb-tab { background: none; border: 1px solid var(--line-strong); color: var(--fg-dim); padding: 9px 13px; font: inherit; font-size: 12px; cursor: pointer; }
+  .lb-tab[aria-pressed='true'] { color: var(--fg); border-color: var(--mint); }
+  .lb-filter { display: flex; gap: 10px; align-items: center; font-size: 11px; color: var(--fg-label); }
+  .lb-filter select { background: var(--surface-1); color: var(--fg); border: 1px solid var(--line-strong); padding: 8px 10px; font: 400 13px var(--font-sans); border-radius: 0; }
+  .lb-board { margin-bottom: var(--space-8); }
+  .lb-board[hidden] { display: none; }
+  .lb-board h2 { font-weight: 400; font-size: 12px; color: var(--fg-label); margin: 0 0 12px; }
+  .lb-board h2 span { color: var(--fg-meta); margin-left: 8px; }
+  .lb-board table { width: 100%; border-collapse: collapse; border: 1px solid var(--line); }
+  .lb-board th { text-align: left; font: 400 11px/14px var(--font-mono); text-transform: uppercase; letter-spacing: .07em; color: var(--fg-label); padding: 12px 16px; border-bottom: 1px solid var(--line); }
+  .lb-board td { padding: 12px 16px; border-bottom: 1px solid var(--line); font-size: 14px; }
+  .lb-board tr:last-child td { border-bottom: 0; }
+  .lb-board .r { text-align: right; }
+  .lb-board .rk { color: var(--fg-meta); }
+  .lb-board tbody tr:first-child .rk { color: var(--mint); }
+  .lb-board .no { color: var(--fg-dim); font-size: 12px; }
+  .lb-none { color: var(--fg-dim); font-size: 14px; margin: 0; }
+</style>
