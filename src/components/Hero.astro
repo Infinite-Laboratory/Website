@@ -1,0 +1,83 @@
+---
+import CopyAddress from './CopyAddress.astro';
+import { DISCORD_INVITE, SERVER_ADDRESS, SINGULARITYLIB_URL } from '../config';
+import { withBase } from '../lib/url';
+---
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero-bg"></div>
+  <div class="hero-fx" aria-hidden="true">
+    <div class="aurora"></div>
+    <div data-bubbles data-bubbles-count="9" data-bubbles-seed="63670"></div>
+  </div>
+  <div class="hero-shade"></div>
+
+  <div class="hero-copy">
+    <p class="mono eyebrow">Experiment 002 &middot; Deepslate MC</p>
+    <h1 id="hero-title">You are Fellow <span class="grad">&infin;</span></h1>
+    <p class="hero-sub">A community-driven, cross-platform Minecraft server.</p>
+    <p class="mono eyebrow platforms">Java and Bedrock</p>
+    <div class="hero-btns"><a class="btn p" href={DISCORD_INVITE} target="_blank" rel="noopener">Join Discord &gt;</a></div>
+    <div class="hero-addr"><CopyAddress address={SERVER_ADDRESS} /></div>
+  </div>
+
+  <div class="hero-side">
+    <div class="backed">
+      <div class="backed-label">Backed by</div>
+      <div class="backed-names"><a href={SINGULARITYLIB_URL} target="_blank" rel="noopener">SingularityLib</a></div>
+    </div>
+    <div class="hero-links mono">
+      <a class="feedback" href={DISCORD_INVITE} target="_blank" rel="noopener">Send feedback &gt;</a>
+    </div>
+  </div>
+</section>
+<script is:inline src={withBase('/assets/bubbles.js')} defer></script>
+
+<style is:global>
+  .hero { position: relative; height: 50vh; min-height: 500px; overflow: hidden; }
+  .hero-bg { position: absolute; inset: 0; background: var(--bg); }
+  .hero-fx {
+    position: absolute; inset: 0; pointer-events: none;
+    -webkit-mask-image: linear-gradient(180deg, rgba(0,0,0,0) 0, #000 20%, #000 38%, rgba(0,0,0,.55) 66%, rgba(0,0,0,0) 100%);
+    mask-image: linear-gradient(180deg, rgba(0,0,0,0) 0, #000 20%, #000 38%, rgba(0,0,0,.55) 66%, rgba(0,0,0,0) 100%);
+  }
+  .aurora {
+    position: absolute; pointer-events: none; left: -10%; right: -10%; top: 14%; height: 58%;
+    background: linear-gradient(90deg, rgba(122,167,251,0) 0%, rgba(122,167,251,.26) 28%, rgba(155,251,162,.20) 62%, rgba(155,251,162,0) 100%);
+    filter: blur(46px);
+    -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 30%, #000 62%, transparent 100%);
+    mask-image: linear-gradient(180deg, transparent 0, #000 30%, #000 62%, transparent 100%);
+    will-change: opacity, transform; animation: lab-drift 10s ease-in-out infinite;
+  }
+  @keyframes lab-drift { 0%, 100% { opacity: .75; transform: translateX(-2%); } 50% { opacity: 1; transform: translateX(2%); } }
+  .hero-shade {
+    position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background:
+      linear-gradient(90deg, rgba(11,12,14,.88) 0%, rgba(11,12,14,.62) 30%, rgba(11,12,14,.18) 58%, rgba(11,12,14,0) 74%),
+      linear-gradient(180deg, #0b0c0e 0, rgba(11,12,14,.82) 9%, rgba(11,12,14,0) 24%, rgba(11,12,14,0) 52%, rgba(11,12,14,.85) 86%, #0b0c0e 100%);
+  }
+  .hero-copy { position: absolute; z-index: 3; left: 28px; bottom: 36px; max-width: 600px; }
+  .hero .eyebrow { font-size: 12px; color: var(--fg-label); margin: 0 0 12px; }
+  .hero .platforms { margin: -8px 0 20px; }
+  .hero h1 { font-weight: 300; font-size: clamp(34px, 6vw, 50px); line-height: 1.05; margin: 0 0 14px; letter-spacing: -0.02em; }
+  .hero-sub { font-size: 17px; line-height: 1.5; color: var(--fg-dim); margin: 0 0 20px; max-width: 520px; }
+  .hero-btns { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+  .hero-addr { margin-top: 22px; min-height: 24px; }
+  .hero-side { position: absolute; z-index: 3; right: 28px; bottom: 36px; text-align: left; }
+  .backed-label { font-size: 15px; color: var(--fg-dim); margin-bottom: 14px; }
+  .backed-names { font-size: 17px; color: #c9ccd2; display: flex; gap: 14px; flex-wrap: wrap; }
+  .backed-names a:hover { color: #fff; }
+  .hero-links { margin-top: 22px; display: flex; gap: 16px; font-size: 11px; color: var(--fg-dim); }
+  .hero-links .feedback { color: var(--mint); }
+  .hero-links .feedback:hover { text-shadow: 0 0 8px #9bfba2aa; }
+  @media (max-width: 899px) {
+    /* On a phone the copy flows: room at the top for the nav and the announcement strip. */
+    .hero { height: auto; min-height: 0; padding: 180px 20px 32px; }
+    .hero-copy, .hero-side { position: relative; left: auto; right: auto; bottom: auto; max-width: none; }
+    .hero-side { margin-top: 32px; }
+  }
+  /* Reduced motion: no aurora drift, no bubbles. */
+  @media (prefers-reduced-motion: reduce) {
+    .aurora { animation: none; opacity: .8; }
+    [data-bubbles] { display: none; }
+  }
+</style>

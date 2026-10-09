@@ -122,10 +122,14 @@ test.describe('metadata', () => {
 
 test.describe('page edge and fonts', () => {
   test('the top page edge is plain #0B0C0E', async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/rules');
     await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(11, 12, 14)');
     await expect(page.locator('body')).toHaveCSS('background-color', 'rgb(11, 12, 14)');
     await expect(page.locator('.site-nav')).toHaveCSS('background-color', 'rgb(11, 12, 14)');
+    // On Home the hero starts at the very top and its first pixels are plain #0B0C0E too.
+    await page.goto('/');
+    await expect(page.locator('html')).toHaveCSS('background-color', 'rgb(11, 12, 14)');
+    await expect(page.locator('.hero-shade')).toHaveCSS('background-image', /rgb\(11, 12, 14\)/);
   });
 
   test('text renders without waiting on fonts', async ({ page }) => {

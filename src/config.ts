@@ -8,7 +8,7 @@ export const SITE_DESCRIPTION =
   'A community-driven, cross-platform Minecraft server. Java and Bedrock.';
 
 /** Server address. `null` while Deepslate MC is in development: pages show "Opening soon". */
-export const SERVER_ADDRESS: string | null = null;
+export const SERVER_ADDRESS: string | null = process.env.LAB_SERVER_ADDRESS || null;
 
 /** Single Discord invite. Backs every Join Discord button and link. */
 export const DISCORD_INVITE = 'https://discord.gg/FQe3Mt6nA';
