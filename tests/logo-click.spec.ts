@@ -61,10 +61,12 @@ for (const [name, scope] of [['nav', 'header'], ['footer', 'footer']] as const) 
         const log: { on: boolean; t: number }[] = [];
         (window as any).__log = log;
         new MutationObserver(() => log.push({ on: mark.hasAttribute('data-flash'), t: performance.now() })).observe(mark, { attributes: true, attributeFilter: ['data-flash'] });
-        const word = document.querySelector(`${s} .wordmark`)!.getBoundingClientRect();
+        // Page coordinates, so scrolling the page (Playwright scrolls the footer into view) is not read as the words moving.
+        const pos = () => { const r = document.querySelector(`${s} .wordmark`)!.getBoundingClientRect(); return { top: r.top + scrollY, left: r.left + scrollX }; };
+        const word = pos();
         (window as any).__wordMoved = false;
         const watch = () => {
-          const r = document.querySelector(`${s} .wordmark`)!.getBoundingClientRect();
+          const r = pos();
           if (r.top !== word.top || r.left !== word.left) (window as any).__wordMoved = true;
           requestAnimationFrame(watch);
         };
