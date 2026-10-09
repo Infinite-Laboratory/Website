@@ -1,0 +1,38 @@
+---
+import { readFileSync } from 'node:fs';
+import { withBase } from '../lib/url';
+
+// The daily job rewrites this file; tests point LAB_THREADS_FILE at a fixture.
+const threads = JSON.parse(readFileSync(process.env.LAB_THREADS_FILE || 'src/data/threads.json', 'utf8'));
+const items = (threads.threads ?? []) as { title: string; category: string; time: string }[];
+const updated = threads.updated ? new Date(threads.updated) : null;
+const fmt = (d: Date) => d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric', timeZone: 'UTC' });
+---
+<aside class="home-rail" aria-label="More">
+  <section class="rail-box" aria-labelledby="threads-t">
+    <h3 id="threads-t" class="mono">Latest threads</h3>
+    {items.length === 0
+      ? <p class="rail-none">No threads yet.</p>
+      : <ul>{items.map((t) => <li><span class="thr-title">{t.title}</span><small>{t.category} &middot; <time datetime={t.time}>{fmt(new Date(t.time))}</time></small></li>)}</ul>}
+    <p class="rail-updated mono">{updated ? <>Updated <time datetime={updated.toISOString()}>{fmt(updated)}</time></> : 'Not updated yet'}</p>
+  </section>
+  <section class="rail-box" aria-labelledby="store-t">
+    <h3 id="store-t" class="mono">Store</h3>
+    <p class="rail-note">Not open yet.</p>
+    <a class="arch mono" href={withBase('/store')}>Read more &gt;</a>
+  </section>
+</aside>
+
+<style is:global>
+  .home-rail { display: grid; align-content: start; }
+  .rail-box { padding: 22px; border-bottom: 1px solid var(--line); }
+  .rail-box:last-child { border-bottom: 0; }
+  .rail-box h3 { font-weight: 400; font-size: 11px; color: var(--fg-label); margin: 0 0 12px; }
+  .rail-box ul { list-style: none; margin: 0; padding: 0; }
+  .rail-box li { padding: 8px 0; border-bottom: 1px solid #1a1d21; display: flex; flex-direction: column; gap: 2px; }
+  .rail-box li:last-child { border-bottom: 0; }
+  .thr-title { font-size: 14px; color: #c9ccd2; }
+  .rail-box small { font-size: 11px; color: var(--fg-meta); }
+  .rail-none, .rail-note { margin: 0 0 10px; font-size: 13px; color: var(--fg-dim); }
+  .rail-updated { margin: 12px 0 0; font-size: 10px; color: var(--fg-meta); }
+</style>

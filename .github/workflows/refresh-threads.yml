@@ -1,0 +1,36 @@
+name: Refresh latest threads
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Fetch the latest threads (read-only bot)
+        env:
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_GUILD_ID: ${{ vars.DISCORD_GUILD_ID }}
+          DISCORD_THREADS_CHANNEL_ID: ${{ vars.DISCORD_THREADS_CHANNEL_ID }}
+        run: node scripts/refresh-threads.mjs
+      - name: Commit and redeploy when the list changed
+        run: |
+          if ! git diff --quiet -- src/data/threads.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add src/data/threads.json
+            git commit -m "Update latest threads"
+            git push
+            gh workflow run deploy.yml
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}

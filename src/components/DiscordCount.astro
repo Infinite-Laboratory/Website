@@ -1,0 +1,27 @@
+---
+import { DISCORD_INVITE, DISCORD_GUILD_ID } from '../config';
+---
+<a class="discord-count mono" id="dcount" href={DISCORD_INVITE} target="_blank" rel="noopener" data-guild={DISCORD_GUILD_ID}>Discord &middot; <span class="n">0</span> online</a>
+
+<script>
+  import { readCount, refreshCount } from '../lib/discord-count';
+
+  const el = document.getElementById('dcount');
+  if (el) {
+    const n = el.querySelector('.n')!;
+    let storage: Storage | null = null;
+    try { storage = window.localStorage; } catch { /* blocked */ }
+    const env = {
+      storage,
+      now: () => Date.now(),
+      fetchJson: async (url: string) => {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(String(res.status));
+        return res.json();
+      },
+    };
+    const cached = readCount(env);
+    n.textContent = String(cached.n);
+    if (!cached.fresh) refreshCount(el.dataset.guild!, env).then((v) => (n.textContent = String(v))).catch(() => { /* keep the last good number, or 0 */ });
+  }
+</script>
