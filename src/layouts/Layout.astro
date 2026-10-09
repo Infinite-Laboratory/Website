@@ -11,14 +11,14 @@ interface Props {
   /** Page title without the site name. Omit on Home. */
   title?: string;
   description?: string;
-  /** Let a page's hero sit under the nav. */
+  /** The page header (aurora) starts at the very top and the nav floats over it. On by default. */
   navOverlay?: boolean;
   /** Do not index (404). */
   noindex?: boolean;
   /** Routes of the other-language variants of this page, when they exist. */
   alternates?: Alternates;
 }
-const { title, description = SITE_DESCRIPTION, navOverlay = false, noindex = false, alternates = {} } = Astro.props;
+const { title, description = SITE_DESCRIPTION, navOverlay = true, noindex = false, alternates = {} } = Astro.props;
 const fullTitle = title ? `${title} · ${SITE_NAME}` : SITE_NAME;
 // With build.format 'file' the build sees /store.html and /index.html; normalise to the public route.
 const fullRoute = routeOf(Astro.url.pathname);

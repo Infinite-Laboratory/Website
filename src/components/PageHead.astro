@@ -1,16 +1,21 @@
 ---
+import Aurora from './Aurora.astro';
 interface Props { eyebrow: string; title: string; sub?: string }
 const { eyebrow, title, sub } = Astro.props;
 ---
-<section class="rules-head wrap">
-  <p class="mono eyebrow">{eyebrow}</p>
-  <h1>{title}</h1>
-  {sub && <p class="sub">{sub}</p>}
-</section>
+<header class="rules-head">
+  <Aurora variant="page" />
+  <div class="rules-head-copy wrap">
+    <p class="mono eyebrow">{eyebrow}</p>
+    <h1>{title}</h1>
+    {sub && <p class="sub">{sub}</p>}
+  </div>
+</header>
 
 <style is:global>
-  .rules-head { padding-top: var(--space-9); padding-bottom: var(--space-6); }
-  .rules-head h1 { font-weight: 300; font-size: clamp(34px, 5vw, 44px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 12px; }
+  .rules-head { position: relative; min-height: 300px; display: flex; flex-direction: column; justify-content: flex-end; padding: 130px 0 30px; overflow: hidden; margin-bottom: var(--space-6); }
+  .rules-head-copy { position: relative; z-index: 2; max-width: 820px; }
+  .rules-head h1 { font-weight: 300; font-size: clamp(34px, 5vw, 44px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 10px; }
   .rules-head .eyebrow { font-size: 12px; color: var(--fg-label); margin: 0 0 12px; }
-  .rules-head .sub { font-size: 17px; color: var(--fg-dim); margin: 0; max-width: 560px; }
+  .rules-head .sub { font-size: 16px; color: var(--fg-dim); margin: 0; max-width: 620px; }
 </style>

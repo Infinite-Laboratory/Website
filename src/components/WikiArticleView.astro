@@ -1,6 +1,7 @@
 ---
 import { render } from 'astro:content';
 import Layout from '../layouts/Layout.astro';
+import PageHead from './PageHead.astro';
 import { WIKI_SECTIONS } from '../content.config';
 import { withBase } from '../lib/url';
 import { localizedRoute, type Alternates, type Language } from '../lib/i18n';
@@ -19,10 +20,9 @@ const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
 const d = entry.data;
 ---
 <Layout title={d.title} description={d.summary} alternates={alternates}>
+  <PageHead eyebrow={`Wiki / ${WIKI_SECTIONS[d.section]}`} title={d.title} sub={d.summary} />
   <article class="wiki-article wrap">
     <nav class="crumbs mono" aria-label="Breadcrumb"><a href={withBase(localizedRoute('/wiki', lang))}>Wiki</a> <span aria-hidden="true">/</span> <span>{WIKI_SECTIONS[d.section]}</span></nav>
-    <h1>{d.title}</h1>
-    <p class="sub">{d.summary}</p>
     <div class="wiki-grid">
       <div class="wiki-body"><Content /></div>
       {toc.length > 0 && (
@@ -40,11 +40,9 @@ const d = entry.data;
 </Layout>
 
 <style is:global>
-  .wiki-article { padding-top: var(--space-9); padding-bottom: var(--space-9); }
+  .wiki-article { padding-top: var(--space-6); padding-bottom: var(--space-9); }
   .crumbs { font-size: 11px; color: var(--fg-label); margin-bottom: 14px; display: flex; gap: 8px; }
   .crumbs a:hover { color: #fff; }
-  .wiki-article h1 { font-weight: 300; font-size: clamp(30px, 5vw, 44px); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 12px; }
-  .wiki-article .sub { font-size: 17px; color: var(--fg-dim); margin: 0 0 var(--space-8); max-width: 60ch; }
   .wiki-grid { display: grid; grid-template-columns: minmax(0, 1fr) 240px; gap: var(--space-9); }
   .wiki-body { max-width: 68ch; font-size: 15px; line-height: 1.7; color: #c9ccd2; }
   .wiki-body h2 { font-weight: 400; font-size: 22px; margin: 36px 0 10px; color: var(--fg); scroll-margin-top: 90px; }
