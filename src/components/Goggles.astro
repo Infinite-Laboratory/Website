@@ -1,0 +1,25 @@
+---
+import { GOGGLES } from '../lib/goggles';
+---
+<!-- Each pixel is a crisp rect, so the mark never blurs. Lens interior pixels carry data-row so the click flash can shade them. -->
+<svg
+  class="goggles"
+  viewBox={`0 0 ${GOGGLES.width} ${GOGGLES.height}`}
+  width="52"
+  height="24"
+  shape-rendering="crispEdges"
+  aria-hidden="true"
+  focusable="false"
+>
+  {GOGGLES.pixels.map((p) => (
+    <rect x={p.x} y={p.y} width="1" height="1" fill={p.fill} class={p.lens ? 'lp' : undefined} data-row={p.lens ? p.y : undefined} />
+  ))}
+</svg>
+
+<style is:global>
+  .goggles { overflow: visible; will-change: transform; }
+  /* Flash: lens interior goes white, with a light grey row and a grey bottom row so it keeps its depth. */
+  .goggles[data-flash] .lp { fill: #ffffff; }
+  .goggles[data-flash] .lp[data-row='8'] { fill: #d0d3d8; }
+  .goggles[data-flash] .lp[data-row='9'] { fill: #8d929b; }
+</style>
