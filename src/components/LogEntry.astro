@@ -1,0 +1,23 @@
+---
+import Tag from './Tag.astro';
+import { formatDate } from '../lib/content';
+import type { Kind } from '../lib/buildlog';
+interface Props { date: Date; kind: Kind; title: string; html?: boolean }
+const { date, kind, title } = Astro.props;
+---
+<article class="post">
+  <time class="d mono" datetime={date.toISOString().slice(0, 10)}>{formatDate(date)}</time>
+  <div>
+    <h3><Tag kind={kind} /><span>{title}</span></h3>
+    <div class="body"><slot /></div>
+  </div>
+</article>
+
+<style is:global>
+  .post { display: grid; grid-template-columns: 110px 1fr; gap: 18px; padding: 20px 22px; border-bottom: 1px solid var(--line); align-items: start; }
+  .post:last-child { border-bottom: 0; }
+  .post .d { font-size: 11px; line-height: 20px; color: var(--fg-meta); }
+  .post h3 { margin: 0; font-size: 17px; font-weight: 400; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .post .body p { margin: 6px 0 0; font-size: 13px; color: var(--fg-dim); max-width: 60ch; }
+  @media (max-width: 899px) { .post { grid-template-columns: 1fr; gap: 6px; } }
+</style>

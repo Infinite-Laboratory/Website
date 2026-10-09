@@ -1,0 +1,26 @@
+---
+import { getCollection, render } from 'astro:content';
+import LogEntry from './LogEntry.astro';
+import { latest } from '../lib/buildlog';
+import { withBase } from '../lib/url';
+
+const all = (await getCollection('buildlog')).filter((e) => e.data.language === 'en');
+const recent = latest(all, 3);
+const rendered = await Promise.all(recent.map(async (e) => ({ e, Content: (await render(e)).Content })));
+---
+<section class="sec" aria-labelledby="log-title">
+  <h2 id="log-title" class="mono sec-title">Build log</h2>
+  <div class="log-box">
+    {rendered.length === 0 && <p class="log-empty">Nothing logged yet.</p>}
+    {rendered.map(({ e, Content }) => (
+      <LogEntry date={e.data.date} kind={e.data.kind} title={e.data.title}><Content /></LogEntry>
+    ))}
+    <a class="arch mono log-more" href={withBase('/build-log')}>View full build log &gt;</a>
+  </div>
+</section>
+
+<style is:global>
+  .log-box { border: 1px solid var(--line); }
+  .log-empty { margin: 0; padding: 20px 22px; color: var(--fg-dim); font-size: 14px; }
+  .log-more { display: block; padding: 18px 22px; border: 0; width: fit-content; }
+</style>

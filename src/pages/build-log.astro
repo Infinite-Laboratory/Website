@@ -1,0 +1,24 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../layouts/Layout.astro';
+import LogEntry from '../components/LogEntry.astro';
+import { newestFirst } from '../lib/buildlog';
+
+const all = (await getCollection('buildlog')).filter((e) => e.data.language === 'en');
+const entries = await Promise.all(newestFirst(all).map(async (e) => ({ e, Content: (await render(e)).Content })));
+---
+<Layout title="Build log" description="What changed, and when. Updates come from the project's own build log.">
+  <section class="rules-head wrap">
+    <p class="mono eyebrow">Build log</p>
+    <h1>What changed</h1>
+    <p class="sub">Updates from the build, newest first. Your feedback shapes what shows up here.</p>
+  </section>
+  <section class="wrap" style="padding-bottom: var(--space-9)">
+    <div class="log-box">
+      {entries.length === 0 && <p class="log-empty">Nothing logged yet.</p>}
+      {entries.map(({ e, Content }) => (
+        <LogEntry date={e.data.date} kind={e.data.kind} title={e.data.title}><Content /></LogEntry>
+      ))}
+    </div>
+  </section>
+</Layout>

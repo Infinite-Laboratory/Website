@@ -25,4 +25,13 @@ const rules = defineCollection({
   }),
 });
 
-export const collections = { rules };
+const buildlog = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/buildlog' }),
+  schema: z.object({
+    ...base,
+    date: z.coerce.date(),
+    kind: z.enum(['Added', 'Changed', 'Fixed', 'Removed']),
+  }),
+});
+
+export const collections = { rules, buildlog };
