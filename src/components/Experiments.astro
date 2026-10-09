@@ -1,0 +1,159 @@
+---
+import { currentExperiments, legacyExperiments, type Experiment } from '../data/experiments';
+import { withBase } from '../lib/url';
+
+const current = currentExperiments();
+const legacy = legacyExperiments();
+
+const phaseLabel = (e: Experiment) => (e.phase === 'development' ? 'In development' : e.phase === 'archived' ? 'Archived' : '');
+---
+<section class="sec" aria-labelledby="exp-title">
+  <h2 id="exp-title" class="mono sec-title">Experiments</h2>
+  <div class="slist">
+    {current.map((e) => (
+      <div class="srow" data-experiment={e.id} data-phase={e.phase} data-address={e.address ?? undefined}>
+        <div class="sic">
+          {e.icon.kind === 'image' && <img src={withBase(e.icon.src)} alt="" width="64" height="64" />}
+        </div>
+        <div class="smain">
+          <div class="sname">{e.name} <span class="sexp mono">{e.tag}</span></div>
+          {e.motd.map((line, i) => (
+            <div class="motd mono" style={i > 0 ? 'margin-top:3px' : undefined}>
+              {line.map((s) => <span class={`m-${s.kind}`}>{s.text} </span>)}
+            </div>
+          ))}
+        </div>
+        <div class="sright">
+          {e.phase === 'development' && <div class="pc"><i class="dot dead" aria-hidden="true"></i>In development</div>}
+          {e.phase === 'live' && <div class="pc status" aria-live="polite"><i class="dot dead" aria-hidden="true"></i><span class="status-text">Checking status…</span></div>}
+          {e.phase === 'live' && <div class="ping" hidden></div>}
+        </div>
+        <div class="sact">
+          {e.address
+            ? <span class="ad mono">{e.address}</span>
+            : <span class="ad mono dim">Address at launch</span>}
+          <div class="ver mono">{e.versions}</div>
+        </div>
+      </div>
+    ))}
+
+    {legacy.map((e) => (
+      <div class="srow off legacy" data-experiment={e.id} data-phase="archived">
+        <div class="sic gone">
+          {e.icon.kind === 'pixels' && (
+            <svg viewBox={`0 0 ${e.icon.rows[0]!.length} ${e.icon.rows.length}`} width="48" height="40" shape-rendering="crispEdges" aria-hidden="true">
+              {e.icon.rows.flatMap((row, y) => [...row].map((c, x) => (e.icon.kind === 'pixels' && e.icon.palette[c]) ? <rect x={x} y={y} width="1" height="1" fill={e.icon.palette[c]} /> : null))}
+            </svg>
+          )}
+        </div>
+        <div class="smain">
+          <div class="sname">{e.name} <span class="sexp mono">{e.tag}</span> <span class="sexp mono tagd">Archived</span></div>
+          {e.motd.map((line) => <div class="motd mono">{line.map((s) => <span class={`m-${s.kind}`}>{s.text}</span>)}</div>)}
+          {e.description && <div class="motd2">{e.description}</div>}
+        </div>
+        <div class="sright">
+          <div class="pc"><i class="dot dead" aria-hidden="true"></i>{phaseLabel(e)}</div>
+          <div class="ver mono" style="margin-top:10px">{e.versions}</div>
+          {e.facts?.map((f) => <div class="ver mono" style="margin-top:4px">{f}</div>)}
+        </div>
+        <div class="sact">
+          {e.lessonsHref && <a class="arch mono" href={withBase(e.lessonsHref)}>Read what we learned &gt;</a>}
+        </div>
+      </div>
+    ))}
+  </div>
+
+  {legacy.length > 0 && (
+    <button class="lbtn mono" type="button" aria-expanded="false" data-legacy-count={legacy.length} hidden>
+      <i aria-hidden="true">+</i><span>Show legacy servers ({legacy.length})</span>
+    </button>
+  )}
+</section>
+
+<script>
+  import { publicStatusSource, pingBars } from '../lib/server-status';
+
+  // Legacy servers: shown in the HTML, folded away by script behind a toggle.
+  const btn = document.querySelector<HTMLButtonElement>('.lbtn');
+  const rows = document.querySelectorAll<HTMLElement>('.legacy');
+  if (btn && rows.length) {
+    const count = btn.dataset.legacyCount;
+    const label = btn.querySelector('span')!;
+    const icon = btn.querySelector('i')!;
+    btn.hidden = false;
+    rows.forEach((r) => (r.hidden = true));
+    btn.addEventListener('click', () => {
+      const show = rows[0]!.hidden;
+      rows.forEach((r) => (r.hidden = !show));
+      btn.setAttribute('aria-expanded', String(show));
+      label.textContent = show ? 'Hide legacy servers' : `Show legacy servers (${count})`;
+      icon.textContent = show ? '−' : '+';
+    });
+  }
+
+  // Live servers: ask the status source. Failure shows "status unavailable", never a made-up number.
+  document.querySelectorAll<HTMLElement>('[data-phase="live"]').forEach(async (row) => {
+    const text = row.querySelector<HTMLElement>('.status-text')!;
+    const dot = row.querySelector<HTMLElement>('.dot')!;
+    const ping = row.querySelector<HTMLElement>('.ping')!;
+    try {
+      const address = row.dataset.address;
+      if (!address) throw new Error('no address');
+      const s = await publicStatusSource.fetch(address);
+      text.innerHTML = `<b>${s.online}</b> / ${s.max} fellows`;
+      dot.classList.remove('dead');
+      if (typeof s.pingMs === 'number') {
+        const bars = pingBars(s.pingMs);
+        ping.innerHTML = [1, 2, 3, 4].map((n) => `<u class="${n <= bars ? '' : 'off'}"></u>`).join('') + `<span class="mono">${Math.round(s.pingMs)} ms</span>`;
+        ping.hidden = false;
+      }
+    } catch {
+      text.textContent = 'Status unavailable';
+    }
+  });
+</script>
+
+<style is:global>
+  .sec { border-top: 1px solid var(--line); padding: var(--space-8) var(--space-7); }
+  .sec-title { font-weight: 400; font-size: 12px; margin: 0 0 18px; color: var(--fg-label); }
+  .slist { border: 1px solid var(--line); }
+  .srow { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 22px; align-items: center; padding: 18px 22px; }
+  .srow[hidden] { display: none; }
+  .srow + .srow { border-top: 1px solid var(--line); }
+  .sic { width: 64px; height: 64px; image-rendering: pixelated; background: var(--surface-2); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; }
+  .sic img { image-rendering: pixelated; }
+  .sic.gone { filter: grayscale(1); }
+  .sic.gone svg { opacity: .8; }
+  .sname { font-size: 20px; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .sexp { font-size: 10px; color: var(--fg-meta); }
+  .motd { font-size: 12px; margin-top: 6px; letter-spacing: .1em; font-weight: 500; }
+  .m-blue { color: var(--blue); } .m-mint { color: var(--mint); } .m-dim { color: var(--fg-label); } .m-fg { color: var(--fg); } .m-sep { color: var(--fg-meta); }
+  .motd2 { font-size: 13px; color: var(--fg-dim); margin-top: 4px; }
+  .sright { text-align: right; font-size: 13px; color: var(--fg-dim); }
+  .sright b { font-weight: 400; color: var(--fg); }
+  .dot { display: inline-block; width: 7px; height: 7px; background: var(--mint); box-shadow: 0 0 8px var(--mint); margin-right: 8px; vertical-align: 1px; }
+  .dot.dead { background: #5d626b; box-shadow: none; }
+  .ping { display: flex; gap: 3px; justify-content: flex-end; align-items: flex-end; height: 14px; margin-top: 10px; }
+  .ping[hidden] { display: none; }
+  .ping u { display: block; width: 4px; background: var(--mint); text-decoration: none; }
+  .ping u:nth-child(1) { height: 4px; } .ping u:nth-child(2) { height: 7px; } .ping u:nth-child(3) { height: 10px; } .ping u:nth-child(4) { height: 13px; }
+  .ping u.off { background: #2a2e34; }
+  .ping span { font-size: 10px; color: var(--fg-meta); margin-left: 8px; align-self: center; }
+  .sact { display: flex; flex-direction: column; gap: 8px; align-items: flex-end; font: 400 13px/1.4 var(--font-mono); color: #c9ccd2; }
+  .sact .dim { color: var(--fg-dim); }
+  .ver { font-size: 10px; color: var(--fg-meta); }
+  .srow.off .sname, .srow.off .motd2, .srow.off .sright { opacity: .55; }
+  .srow.off .sname .tagd { color: var(--fg-label); border: 1px solid var(--line-strong); padding: 2px 6px; }
+  .arch { font-size: 11px; color: var(--fg-dim); border-bottom: 1px solid var(--line-strong); padding-bottom: 2px; }
+  .arch:hover { color: #fff; }
+  .lbtn { margin-top: 14px; background: none; border: 0; padding: 6px 0; color: var(--fg-label); font-size: 11px; cursor: pointer; }
+  .lbtn[hidden] { display: none; }
+  .lbtn:hover { color: #fff; }
+  .lbtn i { font-style: normal; display: inline-block; width: 14px; color: var(--mint); }
+  @media (max-width: 899px) {
+    .sec { padding-left: 20px; padding-right: 20px; }
+    .srow { grid-template-columns: auto 1fr; }
+    .sright, .sact { grid-column: 1 / -1; text-align: left; align-items: flex-start; }
+    .ping { justify-content: flex-start; }
+  }
+</style>

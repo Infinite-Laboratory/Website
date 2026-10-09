@@ -1,0 +1,13 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { withBase } from '../../lib/url';
+---
+<Layout title="What we learned from Armored SMP" description="Armored SMP, our first server, ran for three months and went offline for good. What happened and what we changed.">
+  <article class="stub wrap">
+    <p class="mono eyebrow">Experiment 001 &middot; Archived</p>
+    <h1>What we learned from Armored SMP</h1>
+    <p class="sub">A whitelist survival server where armor could not be crafted. Every death gave you armor that levelled up from leather, and full netherite meant a 12-hour ban.</p>
+    <p class="sub">It ran for three months, then went offline for good. Players left when no admin was around to play with them. That is the lesson: Technicians play in the world, and the world has to run itself.</p>
+    <p><a class="btn" href={withBase('/wiki')}>Back to the wiki</a></p>
+  </article>
+</Layout>
