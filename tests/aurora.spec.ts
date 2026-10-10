@@ -51,3 +51,31 @@ test('with reduced motion the aurora holds still at 80%', async ({ page }) => {
   await expect(a).toHaveCSS('opacity', '0.8');
   await expect(page.locator('.lbub-root').first()).toBeHidden();
 });
+
+test('the eyebrow and title sit at the same height on every page, whether or not it has a sub line', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  const spots: Record<string, number[]> = {};
+  for (const route of ['/store', '/vote', '/leaderboards', '/rules', '/team', '/brand', '/build-log', '/wiki', '/privacy', '/terms', '/wiki/armored-smp-lessons', '/nope']) {
+    await page.goto(route);
+    const eyebrow = (await page.locator('.rules-head .eyebrow').boundingBox())!;
+    const h1 = (await page.locator('.rules-head h1').boundingBox())!;
+    spots[route] = [Math.round(eyebrow.y), Math.round(h1.y)];
+  }
+  const first = Object.values(spots)[0]!;
+  for (const [route, [e, h]] of Object.entries(spots)) {
+    expect(e, `${route} eyebrow`).toBe(first[0]);
+    expect(h, `${route} title`).toBe(first[1]);
+  }
+});
+
+test('the gap between the announcement strip and the eyebrow is the same size on every page', async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  const gaps: number[] = [];
+  for (const route of ['/store', '/vote', '/rules']) {
+    await page.goto(route);
+    const ann = (await page.locator('.ann').boundingBox())!;
+    const eyebrow = (await page.locator('.rules-head .eyebrow').boundingBox())!;
+    gaps.push(Math.round(eyebrow.y - (ann.y + ann.height)));
+  }
+  expect(new Set(gaps).size).toBe(1);
+});
